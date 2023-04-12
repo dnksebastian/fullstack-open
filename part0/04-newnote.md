@@ -31,7 +31,7 @@ sequenceDiagram
 
     browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
     activate server
-    server-->>browser: JSON file with array of 100 note objects (content and date) is receives.
+    server-->>browser: JSON file with array of 100 note objects (content and date) is received.
     deactivate server
 
     Note right of browser: Browser executes function which renders elements populated with JSON data
