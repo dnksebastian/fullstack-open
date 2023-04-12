@@ -7,7 +7,7 @@
 
 | Course part | Description | Repository |
 | :------------: | :-------: | :--------: |
-| 0 | - | <a href="#" target="_blank">Repo</a>  |
+| 0 | Fundamentals of Web apps, understanding communication between client (browser) and server | <a href="#" target="_blank">Repo</a>  |
 | 1 | - | <a href="#" target="_blank">Repo</a>  |
 | 2 | - | <a href="#" target="_blank">Repo</a>  |
 | 3 | - | <a href="#" target="_blank">Repo</a>  |
