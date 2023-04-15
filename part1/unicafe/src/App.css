@@ -13,7 +13,7 @@ h1, h2 {
     color: #3655b3;
 }
 
-p {
+td {
     color: #995d04;
 }
 
@@ -38,18 +38,4 @@ p {
 
 .btn:hover {
     background-color: #e8ebf7;
-}
-
-.result-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: .4rem;
-    text-transform: capitalize;
-}
-
-.result {
-    padding: .4rem 1rem;
-    border-radius: 1rem;
-    box-shadow: .3rem .3rem .2rem -.2rem lightgrey;
 }
