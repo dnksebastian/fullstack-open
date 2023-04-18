@@ -11,6 +11,7 @@ const App = () => {
     setNewName(e.target.value)
   };
 
+
   const addPerson = (e) => {
     e.preventDefault();
     console.log('adding person');
@@ -20,9 +21,26 @@ const App = () => {
       id: persons.length + 1
     }
 
-    setPersons(persons.concat(personObj))
-    setNewName("")
+    let isValid = validateName();
+
+    if (isValid) {
+      setPersons(persons.concat(personObj))
+      setNewName("")
+    } else {
+      return
+    }
   }
+
+  const validateName = () => {
+    if (persons.some(obj => obj.name === newName)) {
+      alert(`${newName} is already added to phonebook`)
+      return false;
+    } else {
+      return true
+    }
+  }
+
+  
 
   return (
     <div>
