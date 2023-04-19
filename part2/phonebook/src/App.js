@@ -65,6 +65,16 @@ const App = () => {
     }
   };
 
+  const removePerson = async (id) => {
+    await personService.removeContact(id);
+    
+    const readContacts = personService.getAll();
+    readContacts.then((updatedContacts) => {
+      console.log(updatedContacts);
+      setPersons(updatedContacts);
+    });
+  };
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -85,7 +95,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={contactsToDisplay} />
+      <Persons persons={contactsToDisplay} removePerson={removePerson} />
     </div>
   );
 };

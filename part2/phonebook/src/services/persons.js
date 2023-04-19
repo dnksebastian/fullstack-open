@@ -1,33 +1,31 @@
-import axios from 'axios';
+import axios from "axios";
 
-const baseUrl = 'http://localhost:3001/persons';
+const baseUrl = "http://localhost:3001/persons";
 
 const getAll = () => {
-    const req = axios.get(baseUrl)
-    return req.then(res => res.data)
+  const req = axios.get(baseUrl);
+  return req.then((res) => res.data);
+};
 
-    // return axios.get(baseUrl)
-}
+const create = (newObject) => {
+  const req = axios.post(baseUrl, newObject);
+  return req.then((res) => res.data);
+};
 
-const create = newObject => {
-    const req = axios.post(baseUrl, newObject);
-    return req.then(res => res.data)
+// const update = (id, newObject) => {
+//     const req = axios.put(`${baseUrl}/${id}`, newObject)
+//     return req.then(res => res.data)
+// }
 
-    // return axios.post(baseUrl, newObject)
-}
-
-const update = (id, newObject) => {
-    const req = axios.put(`${baseUrl}/${id}`, newObject)
-    return req.then(res => res.data)
-
-    // return axios.put(`${baseUrl}/${id}`, newObject)
-}
-
+const removeContact = (id) => {
+  const req = axios.delete(`${baseUrl}/${id}`);
+  return req
+};
 
 const personsHandlers = {
-    getAll,
-    create,
-    update
-}
+  getAll,
+  create,
+  removeContact,
+};
 
-export default personsHandlers
+export default personsHandlers;
