@@ -69,6 +69,7 @@ const App = () => {
     await personService.removeContact(id);
     
     const readContacts = personService.getAll();
+    
     readContacts.then((updatedContacts) => {
       console.log(updatedContacts);
       setPersons(updatedContacts);
