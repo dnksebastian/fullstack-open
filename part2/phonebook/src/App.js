@@ -35,45 +35,83 @@ const App = () => {
       )
     : persons;
 
-  const addPerson = (e) => {
-    e.preventDefault();
+  const addPerson = () => {
 
     const personObj = {
       name: newName,
       number: newNumber,
     };
 
-    let isValid = validateName();
-
-    if (isValid) {
       personService.create(personObj).then((returnedPersons) => {
         setPersons(persons.concat(returnedPersons));
-        setNewName("");
-        setNewNumber("");
       });
-    } else {
-      return;
-    }
   };
 
   const validateName = () => {
-    if (persons.some((obj) => obj.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
-      return false;
-    } else {
+    if (persons.some((obj) => obj.name.toLowerCase() === newName.toLowerCase())) {
       return true;
+    } else {
+      return false;
     }
   };
 
+  const updatePerson = async () => {
+    
+        const personToUpdate = persons.find((p) => p.name.toLowerCase() === newName.toLowerCase());
+        const changedPerson = {...personToUpdate, number: newNumber};
+
+        const updatedPerson = await personService.update(personToUpdate.id, changedPerson);
+
+        setPersons(persons.map((person) => {
+          return person.id === updatedPerson.id ? updatedPerson : person
+        }))
+
+  }
+
+
   const removePerson = async (id) => {
-    await personService.removeContact(id);
-    
-    const readContacts = personService.getAll();
-    
-    readContacts.then((updatedContacts) => {
-      console.log(updatedContacts);
-      setPersons(updatedContacts);
-    });
+    const delPerson = persons.find((person) => person.id === id);
+
+    if (window.confirm(`Do you really want to delete ${delPerson.name}?`)) {
+
+      await personService.removeContact(id);
+
+      const readContacts = await personService.getAll();
+      console.log(readContacts);
+
+      setPersons([...readContacts])
+    }
+
+  };
+
+  const submitForm = (e) => {
+    e.preventDefault();
+    let nameExists = validateName();
+
+    console.log(nameExists);
+
+    if (nameExists) {
+      let userWantsUpdate = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`);
+
+      console.log(userWantsUpdate);
+
+      if (userWantsUpdate) {
+        console.log("updating persons...");
+        updatePerson()
+        setNewName("");
+        setNewNumber("");
+      } else {
+        console.log(`${newName} is already in the phonebook!`)
+        return
+      }
+    }
+    else {
+      console.log('adding person...');
+      addPerson();
+      setNewName("");
+      setNewNumber("");
+    }
+
   };
 
   return (
@@ -87,7 +125,7 @@ const App = () => {
       <h3>Add new number</h3>
 
       <PersonForm
-        formHandler={addPerson}
+        formHandler={submitForm}
         nameVal={newName}
         nameHandler={handleNameChange}
         numVal={newNumber}
