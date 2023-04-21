@@ -1,0 +1,3 @@
+# Data for countries exercise solution
+
+...
