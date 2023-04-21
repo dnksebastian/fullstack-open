@@ -2,10 +2,19 @@ body {
     background-color: #f3f3f3;
 }
 
-.success {
+.success, .error {
     padding: .5rem 1rem;
-    color: darkgreen;
-    border: 2px solid darkgreen;
     background-color: lightgray;
     width: max-content;
+}
+
+.success {
+    color: darkgreen;
+    border: 2px solid darkgreen;
+
+}
+
+.error {
+    color: darkred;
+    border: 2px solid darkred;
 }

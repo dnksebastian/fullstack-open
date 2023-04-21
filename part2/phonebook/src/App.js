@@ -4,7 +4,8 @@ import personService from "./services/persons";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-import SuccessNotification from './components/SuccessNotification';
+import SuccessNotification from "./components/SuccessNotification";
+import ErrorNotification from "./components/ErrorNotification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -12,6 +13,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [newFilter, setNewFilter] = useState("");
   const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => {
@@ -38,21 +40,22 @@ const App = () => {
     : persons;
 
   const addPerson = () => {
-
     const personObj = {
       name: newName,
       number: newNumber,
     };
 
-      personService.create(personObj).then((returnedPersons) => {
-        setPersons(persons.concat(returnedPersons));
-      });
+    personService.create(personObj).then((returnedPersons) => {
+      setPersons(persons.concat(returnedPersons));
+    });
 
-      displaySuccess('Added', personObj.name)
+    displaySuccess("Added", personObj.name);
   };
 
   const validateName = () => {
-    if (persons.some((obj) => obj.name.toLowerCase() === newName.toLowerCase())) {
+    if (
+      persons.some((obj) => obj.name.toLowerCase() === newName.toLowerCase())
+    ) {
       return true;
     } else {
       return false;
@@ -60,40 +63,60 @@ const App = () => {
   };
 
   const updatePerson = async () => {
-    
-        const personToUpdate = persons.find((p) => p.name.toLowerCase() === newName.toLowerCase());
-        const changedPerson = {...personToUpdate, number: newNumber};
+    const personToUpdate = persons.find(
+      (p) => p.name.toLowerCase() === newName.toLowerCase()
+    );
+    const changedPerson = { ...personToUpdate, number: newNumber };
 
-        const updatedPerson = await personService.update(personToUpdate.id, changedPerson);
-
-        setPersons(persons.map((person) => {
-          return person.id === updatedPerson.id ? updatedPerson : person
-        }))
-        displaySuccess('Updated', updatedPerson.name);
-  }
-
+    try {
+      const updatedPerson = await personService.update(
+        personToUpdate.id,
+        changedPerson
+      );
+      setPersons(
+        persons.map((person) => {
+          return person.id === updatedPerson.id ? updatedPerson : person;
+        })
+      );
+      displaySuccess("Updated", updatedPerson.name);
+    } catch (err) {
+      // console.log(err);
+      displayError("removed", changedPerson.name);
+    }
+  };
 
   const removePerson = async (id) => {
     const delPerson = persons.find((person) => person.id === id);
 
     if (window.confirm(`Do you really want to delete ${delPerson.name}?`)) {
-
       await personService.removeContact(id);
 
       const readContacts = await personService.getAll();
       console.log(readContacts);
 
-      setPersons([...readContacts])
+      setPersons([...readContacts]);
     }
-
   };
 
   const displaySuccess = (action, name) => {
-    setSuccessMessage(`${action} ${name}`)
+    setSuccessMessage(`${action} ${name}`);
     setTimeout(() => {
-      setSuccessMessage(null)
+      setSuccessMessage(null);
     }, 3000);
-  }
+  };
+
+  const displayError = (action, name) => {
+    if (action === "removed") {
+      setErrorMessage(
+        `Information of ${name} has already been removed from server`
+      );
+    } else {
+      setErrorMessage(`Could not add or change data for ${name}.`);
+    }
+    setTimeout(() => {
+      setErrorMessage(null);
+    }, 3000);
+  };
 
   const submitForm = (e) => {
     e.preventDefault();
@@ -102,27 +125,27 @@ const App = () => {
     console.log(nameExists);
 
     if (nameExists) {
-      let userWantsUpdate = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`);
+      let userWantsUpdate = window.confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      );
 
       console.log(userWantsUpdate);
 
       if (userWantsUpdate) {
         console.log("updating persons...");
-        updatePerson()
+        updatePerson();
         setNewName("");
         setNewNumber("");
       } else {
-        console.log(`${newName} is already in the phonebook!`)
-        return
+        console.log(`${newName} is already in the phonebook!`);
+        return;
       }
-    }
-    else {
-      console.log('adding person...');
+    } else {
+      console.log("adding person...");
       addPerson();
       setNewName("");
       setNewNumber("");
     }
-
   };
 
   return (
@@ -130,6 +153,7 @@ const App = () => {
       <h2>Phonebook</h2>
 
       <SuccessNotification message={successMessage} />
+      <ErrorNotification message={errorMessage} />
 
       <h3>Search contact</h3>
 
