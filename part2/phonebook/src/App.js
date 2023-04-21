@@ -4,12 +4,14 @@ import personService from "./services/persons";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import SuccessNotification from './components/SuccessNotification';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [newFilter, setNewFilter] = useState("");
+  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => {
@@ -45,6 +47,8 @@ const App = () => {
       personService.create(personObj).then((returnedPersons) => {
         setPersons(persons.concat(returnedPersons));
       });
+
+      displaySuccess('Added', personObj.name)
   };
 
   const validateName = () => {
@@ -65,7 +69,7 @@ const App = () => {
         setPersons(persons.map((person) => {
           return person.id === updatedPerson.id ? updatedPerson : person
         }))
-
+        displaySuccess('Updated', updatedPerson.name);
   }
 
 
@@ -83,6 +87,13 @@ const App = () => {
     }
 
   };
+
+  const displaySuccess = (action, name) => {
+    setSuccessMessage(`${action} ${name}`)
+    setTimeout(() => {
+      setSuccessMessage(null)
+    }, 3000);
+  }
 
   const submitForm = (e) => {
     e.preventDefault();
@@ -117,6 +128,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <SuccessNotification message={successMessage} />
 
       <h3>Search contact</h3>
 
