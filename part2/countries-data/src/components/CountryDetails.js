@@ -9,7 +9,7 @@ const CountryDetails = ({country}) => {
                 <p>Area: {finalCountry.area}</p>
             </div>
             <h3>Languages:</h3>
-            <ul>
+            <ul className="lang-list">
                 {Object.entries(finalCountry.languages).map(([shortname, longname]) => (
                     <li key={shortname}>{longname}</li>
                 ))}

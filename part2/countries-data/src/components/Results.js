@@ -1,7 +1,7 @@
 import CountryDetails from "./CountryDetails";
 
-const Results = ({ countries }) => {
-  console.log(countries);
+const Results = ({ countries, showDetails }) => {
+  // console.log(countries);
 
   if (countries.length > 10) {
     return <p>Too many matches, specify another filter</p>;
@@ -10,7 +10,7 @@ const Results = ({ countries }) => {
       <div>
         <ul>
           {countries.map((country) => (
-            <li key={country.area}>{country.name.common}</li>
+            <li key={country.area}>{country.name.common} <button onClick={() => {showDetails(country.area)}}>show</button></li>
           ))}
         </ul>
       </div>

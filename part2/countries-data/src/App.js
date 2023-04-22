@@ -34,11 +34,19 @@ const App = () => {
     // console.log(foundCountries);
   }
 
+  const showDetails = (id) => {
+    // console.log('show details...');
+    // console.log(id);
+    const countryToShow = countries.find(country => country.area === id)
+
+    setMatchingCountries([{...countryToShow}]);
+  }
+
 
   return (
     <div className='main-wrapper'>
       <FindCountriesForm country={countryQuery} countryHandler={handleCountryChange}/>
-      <Results countries={matchingCountries} />
+      <Results countries={matchingCountries} showDetails={showDetails}/>
     </div>
   );
 }
