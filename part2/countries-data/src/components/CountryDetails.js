@@ -6,8 +6,6 @@ const CountryDetails = ({ country, getWeather, weatherData }) => {
     const lat = finalCountry.latlng[0];
     const lng = finalCountry.latlng[1];
     
-    console.log('rendered');
-    
     useEffect(() => {
     getWeather(lat, lng);
   }, [getWeather, lat, lng]);
@@ -44,20 +42,21 @@ const CountryDetails = ({ country, getWeather, weatherData }) => {
     <div className="country-details">
       <h2 className="c-name">{finalCountry.name.common}</h2>
       <div className="basic-info">
-        <p>Capital: {finalCountry.capital[0]}</p>
+        <p>Capital: {finalCountry.capital ? finalCountry.capital[0] : finalCountry.name.common}</p>
         <p>Area: {finalCountry.area}</p>
       </div>
       <h3>Languages:</h3>
       <ul className="lang-list">
-        {Object.entries(finalCountry.languages).map(([shortname, longname]) => (
+        {finalCountry.languages && Object.entries(finalCountry.languages).map(([shortname, longname]) => (
           <li key={shortname}>{longname}</li>
         ))}
       </ul>
       <h3 className="flag-label">Flag:</h3>
       <div className="flag-wrap">
-        <img src={finalCountry.flags.png} alt={finalCountry.flags.alt} />
+        {finalCountry.flags &&
+        <img src={finalCountry.flags.png} alt={finalCountry.flags.alt} />}
       </div>
-      <h3>Weather in {finalCountry.capital[0]}</h3>
+      <h3>Weather in {finalCountry.capital ? finalCountry.capital[0] : finalCountry.name.common}</h3>
       <div className="weather-container">
         <p>temperature: {weatherData.temperature_2m_max} °C</p>
         <div className="weather-icon-wrap">

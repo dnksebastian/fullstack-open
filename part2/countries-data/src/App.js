@@ -13,11 +13,6 @@ const App = () => {
   const [matchingCountries, setMatchingCountries] = useState([]);
   const [weather, setWeather] = useState({});
 
-  const handleCountryChange = (e) => {
-    setCountryQuery(e.target.value);
-    findCountries();
-  }
-  
   const receiveCountries = () => {
     countriesHandlers.getAll().then((receivedCountries) => {
       setCountries([...receivedCountries])
@@ -26,24 +21,25 @@ const App = () => {
   useEffect(receiveCountries, [])
 
 
-  const findCountries = () => {
-    const foundCountries = countries.filter(country => country.name.common.toLowerCase().includes(countryQuery.toLowerCase()))
-
-    setMatchingCountries([...foundCountries])
+  const handleCountryChange = (e) => {
+    setCountryQuery(e.target.value);
   }
+
+  const findCountries = useCallback(() => {
+    const foundCountries = countries.filter(country => country.name.common.toLowerCase().includes(countryQuery.toLowerCase()))
+    setMatchingCountries([...foundCountries])    
+  }, [countries, countryQuery])
+
+
+  useEffect(() => {
+    findCountries()
+  }, [countryQuery, findCountries])
 
   const showDetails = (id) => {
     const countryToShow = countries.find(country => country.area === id)
 
     setMatchingCountries([{...countryToShow}]);
   } 
-
-  // const getWeather = async (lat, lng) => {
-  //   const weatherRes = await countriesHandlers.getWeather(lat, lng)
-  //   const weatherObj = weatherRes.daily;
-
-  //   setWeather(weatherObj)
-  // }
 
   const weatherFetch = useCallback( async (lat, lng) => {
     const weatherRes = await countriesHandlers.getWeather(lat, lng)
