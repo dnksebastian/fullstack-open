@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import countriesHandlers from './services/countries';
 
 // Component imports
@@ -38,18 +38,23 @@ const App = () => {
     setMatchingCountries([{...countryToShow}]);
   } 
 
-  const getWeather = async (lat, lang) => {
-    const weatherRes = await countriesHandlers.getWeather(lat, lang)
+  // const getWeather = async (lat, lng) => {
+  //   const weatherRes = await countriesHandlers.getWeather(lat, lng)
+  //   const weatherObj = weatherRes.daily;
+
+  //   setWeather(weatherObj)
+  // }
+
+  const weatherFetch = useCallback( async (lat, lng) => {
+    const weatherRes = await countriesHandlers.getWeather(lat, lng)
     const weatherObj = weatherRes.daily;
-
     setWeather(weatherObj)
-  }
-
+  }, [])
 
   return (
     <div className='main-wrapper'>
       <FindCountriesForm country={countryQuery} countryHandler={handleCountryChange}/>
-      <Results countries={matchingCountries} showDetails={showDetails} getWeather={getWeather} weatherData={weather}/>
+      <Results countries={matchingCountries} showDetails={showDetails} getWeather={weatherFetch} weatherData={weather}/>
     </div>
   );
 }

@@ -2,15 +2,16 @@ import { useEffect } from "react";
 import WeatherIcons from "../assets/weather-icons/icons";
 
 const CountryDetails = ({ country, getWeather, weatherData }) => {
-  const finalCountry = { ...country[0] };
-  const lat = finalCountry.latlng[0];
-  const lng = finalCountry.latlng[1];
-
-  useEffect(() => {
+    const finalCountry = { ...country[0] };
+    const lat = finalCountry.latlng[0];
+    const lng = finalCountry.latlng[1];
+    
+    console.log('rendered');
+    
+    useEffect(() => {
     getWeather(lat, lng);
-  }, []);
+  }, [getWeather, lat, lng]);
 
-  console.log(weatherData);
 
 //   Providing icons this way because the weather API doesn't have this feature ;)
 
@@ -38,6 +39,7 @@ const CountryDetails = ({ country, getWeather, weatherData }) => {
     }
   };
 
+
   return (
     <div className="country-details">
       <h2 className="c-name">{finalCountry.name.common}</h2>
@@ -59,13 +61,15 @@ const CountryDetails = ({ country, getWeather, weatherData }) => {
       <div className="weather-container">
         <p>temperature: {weatherData.temperature_2m_max} °C</p>
         <div className="weather-icon-wrap">
-          <img alt="weather icon" src={renderWeatherIcon(weatherData.weathercode[0])}></img>
+            {weatherData.weathercode &&
+          <img alt="weather icon" src={renderWeatherIcon(weatherData.weathercode[0])}></img> }
         </div>
         <p>wind: {weatherData.windspeed_10m_max} m/s</p>
         <p className="attribution">Country data by <a href="https://restcountries.com/">REST Countries</a>. Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a>. Weather icons by <a href="https://bas.dev/work/meteocons">Meteocons</a>.</p>
       </div>
     </div>
   );
+
 };
 
 export default CountryDetails;

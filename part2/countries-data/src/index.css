@@ -51,6 +51,39 @@ input {
   padding-bottom: 2rem;
 }
 
+
+.country-result-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.country-result-list li {
+  max-width: 25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .5rem .7rem;
+  border-radius: .7rem;
+  box-shadow: .5rem .5rem 1.5rem .1rem lightgray;
+}
+
+.res-btn {
+  transition: .3s;
+  border-radius: .5rem;
+  border: 1px solid lightgray;
+  background-color: lightblue;
+  padding: .5rem .7rem;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+.res-btn:hover {
+  background-color: rgb(70, 181, 219);
+}
+
+
+
 .country-details {
   display: grid;
   align-items: center;
@@ -76,8 +109,11 @@ input {
 } */
 
 .lang-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* display: grid;
+  grid-template-columns: 1fr 1fr; */
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 30rem;
   gap: .5rem;
   list-style: none;
 }
@@ -85,7 +121,8 @@ input {
 .lang-list li {
   padding: .3rem .7rem;
   border-radius: .7rem;
-  box-shadow: .5rem .5rem 1.5rem .1rem lightgray;  
+  box-shadow: .5rem .5rem 1.5rem .1rem lightgray;
+  max-width: max-content;
 }
 
 .flag-wrap, .flag-label {
@@ -115,8 +152,12 @@ input {
 .attribution {
   margin-top: 1rem;
   font-size: 1rem;
+  max-width: 30rem;
 }
 
 .attribution a {
   text-decoration: none;
 }
+
+
+
