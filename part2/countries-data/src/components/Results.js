@@ -1,6 +1,6 @@
 import CountryDetails from "./CountryDetails";
 
-const Results = ({ countries, showDetails }) => {
+const Results = ({ countries, showDetails, getWeather, weatherData }) => {
   // console.log(countries);
 
   if (countries.length > 10) {
@@ -16,7 +16,7 @@ const Results = ({ countries, showDetails }) => {
       </div>
     );
   } else if (countries.length === 1) {
-    return <CountryDetails country={countries} />
+    return <CountryDetails country={countries} getWeather={getWeather} weatherData={weatherData} />
   } 
   else {
     return <p>Results...</p>

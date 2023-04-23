@@ -64,9 +64,20 @@ input {
   grid-column: 1/2;
 }
 
-.lang-list {
+/* .c-name, .basic-info {
+  grid-column: 1/3;
+  text-align: center;
+}
+
+.basic-info {
   display: flex;
   flex-direction: column;
+  gap: .5rem;
+} */
+
+.lang-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: .5rem;
   list-style: none;
 }
@@ -97,5 +108,15 @@ input {
   max-width: 100%;
 }
 
+.weather-icon-wrap {
+  max-width: 10rem;
+}
 
+.attribution {
+  margin-top: 1rem;
+  font-size: 1rem;
+}
 
+.attribution a {
+  text-decoration: none;
+}

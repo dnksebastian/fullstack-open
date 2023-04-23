@@ -11,9 +11,8 @@ const App = () => {
   const [countryQuery, setCountryQuery] = useState('');
   const [countries, setCountries] = useState([]);
   const [matchingCountries, setMatchingCountries] = useState([]);
+  const [weather, setWeather] = useState({});
 
-  // useEffect(() => console.log(countryQuery), [countryQuery]);
-  
   const handleCountryChange = (e) => {
     setCountryQuery(e.target.value);
     findCountries();
@@ -31,22 +30,26 @@ const App = () => {
     const foundCountries = countries.filter(country => country.name.common.toLowerCase().includes(countryQuery.toLowerCase()))
 
     setMatchingCountries([...foundCountries])
-    // console.log(foundCountries);
   }
 
   const showDetails = (id) => {
-    // console.log('show details...');
-    // console.log(id);
     const countryToShow = countries.find(country => country.area === id)
 
     setMatchingCountries([{...countryToShow}]);
+  } 
+
+  const getWeather = async (lat, lang) => {
+    const weatherRes = await countriesHandlers.getWeather(lat, lang)
+    const weatherObj = weatherRes.daily;
+
+    setWeather(weatherObj)
   }
 
 
   return (
     <div className='main-wrapper'>
       <FindCountriesForm country={countryQuery} countryHandler={handleCountryChange}/>
-      <Results countries={matchingCountries} showDetails={showDetails}/>
+      <Results countries={matchingCountries} showDetails={showDetails} getWeather={getWeather} weatherData={weather}/>
     </div>
   );
 }
