@@ -8,11 +8,11 @@
 | Course part | Description | Repository |
 | :------------: | :-------: | :--------: |
 | 0 | Fundamentals of Web apps, understanding communication between client (browser) and server | <a href="#" target="_blank">Repo</a>  |
-| 1 | - | <a href="#" target="_blank">Repo</a>  |
-| 2 | - | <a href="#" target="_blank">Repo</a>  |
-| 3 | - | <a href="#" target="_blank">Repo</a>  |
-| 4 | - | <a href="#" target="_blank">Repo</a>  |
-| 5 | - | <a href="#" target="_blank">Repo</a>  |
+| 1 | Introduction to React | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part1" target="_blank">Repo</a>  |
+| 2 | Communicating with server | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part2" target="_blank">Repo</a>  |
+| 3 | Programming a server with NodeJS and Express | <a href="https://github.com/dnksebastian/fullstackopen-part3" target="_blank">Repo</a>  |
+| 4 | Testing Express servers, user authentication and administration | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part4" target="_blank">Repo</a>  |
+| 5 | Testing React apps | <a href="#" target="_blank">Repo</a>  |
 | 6 | - | <a href="#" target="_blank">Repo</a>  |
 | 7 | - | <a href="#" target="_blank">Repo</a>  |
 | 8 | - | <a href="#" target="_blank">Repo</a>  |
