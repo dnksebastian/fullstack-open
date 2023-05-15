@@ -254,6 +254,104 @@ describe('when there is initially one user in db', () => {
 
 })
 
+describe.only('adding new user validation', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'John Doe', passwordHash })
+
+    await user.save()
+  })
+
+  test('new user is not added if username is missing, returns error 400 and proper message', async () => {
+
+    const usersAtStart = await usersInDb()
+
+    const newUser = {
+      username: '',
+      name: 'Testing username',
+      password: 'example'
+    }
+
+    const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toBe('username and password are required')
+
+    const usersAtEnd = await usersInDb()
+    expect(usersAtEnd).toEqual(usersAtStart)
+  })
+
+  test('new user is not added if password is missing, returns error 400 and proper message', async () => {
+    const usersAtStart = await usersInDb()
+
+    const newUser = {
+      username: 'Testing',
+      name: 'Testing username',
+      password: ''
+    }
+
+    const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toBe('username and password are required')
+
+    const usersAtEnd = await usersInDb()
+    expect(usersAtEnd).toEqual(usersAtStart)
+  })
+
+  test('username must have at least 3 characters, returns error 400 and proper message', async () => {
+    const usersAtStart = await usersInDb()
+
+    const newUser = {
+      username: 'Te',
+      name: 'Testing username',
+      password: 'example'
+    }
+
+    const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toBe('username and password must have at least 3 characters')
+
+    const usersAtEnd = await usersInDb()
+    expect(usersAtEnd).toEqual(usersAtStart)
+  })
+
+  test('password must have at least 3 characters, returns error 400 and proper message', async () => {
+    const usersAtStart = await usersInDb()
+
+    const newUser = {
+      username: 'Testing',
+      name: 'Testing username',
+      password: 'ex'
+    }
+
+    const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toBe('username and password must have at least 3 characters')
+
+    const usersAtEnd = await usersInDb()
+    expect(usersAtEnd).toEqual(usersAtStart)
+  })
+
+  test('username must be unique, returns error 400 and proper message', async () => {
+    const usersAtStart = await usersInDb()
+
+    const newUser = {
+      username: 'John Doe',
+      name: 'Duplicated user',
+      password: 'example'
+    }
+
+    const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toBe('user already existing')
+
+    const usersAtEnd = await usersInDb()
+    expect(usersAtEnd).toEqual(usersAtStart)
+  })
+
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
