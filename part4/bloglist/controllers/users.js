@@ -4,7 +4,7 @@ const User = require('../models/user')
 
 
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({})
+  const users = await User.find({}).populate('blogs', { title: 1, author: 1, url: 1 })
   response.json(users)
 })
 
@@ -21,9 +21,9 @@ usersRouter.post('/', async (request, response, next) => {
     return response.status(400).json({ error: 'username and password must have at least 3 characters' })
   }
 
-  const existingUser = await User.find({ username: username })
+  const existingUser = await User.find({ username: username }).exec()
 
-  if (existingUser) {
+  if (existingUser.length !== 0) {
     return response.status(400).json({ error: 'user already existing' })
   }
 

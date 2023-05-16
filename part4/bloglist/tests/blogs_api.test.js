@@ -246,7 +246,8 @@ describe('when there is initially one user in db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('expected `username` to be unique')
+    // expect(result.body.error).toContain('expected `username` to be unique')
+    expect(result.body.error).toBe('user already existing')
 
     const usersAtEnd = await usersInDb()
     expect(usersAtEnd).toEqual(usersAtStart)
@@ -254,7 +255,7 @@ describe('when there is initially one user in db', () => {
 
 })
 
-describe.only('adding new user validation', () => {
+describe('adding new user validation', () => {
   beforeEach(async () => {
     await User.deleteMany({})
 
