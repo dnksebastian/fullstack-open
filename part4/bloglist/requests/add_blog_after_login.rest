@@ -3,7 +3,7 @@ Content-Type: application/json
 Authorization: Bearer xx
 
 {
-    "title": "Blog invalid token",
+    "title": "Blog",
     "url": "http://www.google.com", 
-    "likes": 70
+    "likes": 4
 }
