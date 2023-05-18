@@ -2,6 +2,16 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+const jwt = require('jsonwebtoken')
+
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
+
 blogsRouter.get('/', async (_request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   response.json(blogs)
@@ -13,9 +23,14 @@ blogsRouter.post('/', async (request, response) => {
   const body = request.body
 
 
-  const user = await User.findOne({})
-  // const blog = new Blog({ ...request.body, user: user.id, likes: request.body.likes || 0 })
-  const blog = new Blog({ ...request.body, user: user.id, likes: body.likes || 0 })
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+
+  const user = await User.findById(decodedToken.id)
+
+  const blog = new Blog({ ...request.body, author: user.name, user: user._id, likes: body.likes || 0 })
 
   // if(request.body.title === undefined || request.body.url === undefined) {
   //   return response.status(400).json({ error: 'missing blog data' })
@@ -23,24 +38,28 @@ blogsRouter.post('/', async (request, response) => {
   // below is alternative solution which uses mongoose schema validation
 
 
-  try {
-    const savedBlog = await blog.save()
-    user.blogs = user.blogs.concat(savedBlog._id)
-    await user.save()
+  const savedBlog = await blog.save()
+  user.blogs = user.blogs.concat(savedBlog._id)
+  await user.save()
 
-    response.status(201).json(savedBlog)
-  } catch (err) {
-    response.status(400).json({ error: 'missing blog data' })
-  }
+  response.status(201).json(savedBlog)
+
+  // try {
+
+  // } catch (err) {
+  //   response.status(400).json({ error: 'missing blog data' })
+  // }
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  try {
-    await Blog.findByIdAndRemove(request.params.id)
-    response.status(204).end()
-  } catch (error) {
-    response.status(410).end()
-  }
+
+  await Blog.findByIdAndRemove(request.params.id)
+  response.status(204).end()
+  // try {
+
+  // } catch (error) {
+  //   response.status(410).end()
+  // }
 })
 
 blogsRouter.put('/:id', async (request, response) => {
@@ -54,13 +73,14 @@ blogsRouter.put('/:id', async (request, response) => {
     likes: body.likes
   }
 
-  try {
-    const updatedPost = await Blog.findByIdAndUpdate(request.params.id, post, { new: true })
-    response.json(updatedPost)
-  }
-  catch (error) {
-    response.status(400).end()
-  }
+  const updatedPost = await Blog.findByIdAndUpdate(request.params.id, post, { new: true })
+  response.json(updatedPost)
+  // try {
+
+  // }
+  // catch (error) {
+  //   response.status(400).end()
+  // }
 })
 
 

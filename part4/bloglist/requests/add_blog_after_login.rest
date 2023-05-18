@@ -1,9 +1,9 @@
 POST http://localhost:3001/api/blogs
 Content-Type: application/json
+Authorization: Bearer xx
 
 {
-    "title": "Example blog", 
-    "author": "John Doe", 
+    "title": "Blog invalid token",
     "url": "http://www.google.com", 
-    "likes": 7
+    "likes": 70
 }
