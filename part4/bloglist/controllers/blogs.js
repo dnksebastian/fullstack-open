@@ -1,19 +1,15 @@
+const mongoose = require('mongoose')
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-// const User = require('../models/user')
-
-// const jwt = require('jsonwebtoken')
-
-// const getTokenFrom = request => {
-//   const authorization = request.get('authorization')
-//   if (authorization && authorization.startsWith('Bearer ')) {
-//     return authorization.replace('Bearer ', '')
-//   }
-//   return null
-// }
 
 blogsRouter.get('/', async (_request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
+
+  if(blogs.length === 0){
+    return response.json({ blogs: 'no blogs found' })
+    // should probably be a 404 response
+  }
+
   response.json(blogs)
 })
 
@@ -22,14 +18,11 @@ blogsRouter.post('/', async (request, response) => {
 
   const body = request.body
 
-  // const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  // if (!decodedToken.id) {
-  //   return response.status(401).json({ error: 'token invalid' })
-  // }
-
-  // const user = await User.findById(decodedToken.id)
-
   const user = request.user
+
+  if(!user) {
+    return response.status(401).json({ error: 'User unauthorized' })
+  }
 
   const blog = new Blog({ ...request.body, author: user.name, user: user._id, likes: body.likes || 0 })
 
@@ -45,28 +38,31 @@ blogsRouter.post('/', async (request, response) => {
 
   response.status(201).json(savedBlog)
 
-
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
 
-  // const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  // if (!decodedToken.id) {
-  //   return response.status(401).json({ error: 'token invalid' })
-  // }
+  const id = request.params.id
 
-  // const user = await User.findById(decodedToken.id)
+  if(!mongoose.Types.ObjectId.isValid(id)) {
+    return response.status(404).json({ error: 'Invalid blog ID' })
+  }
+
+  const blog = await Blog.findById(id)
+
+  if(!blog) {
+    return response.status(410).end()
+  }
 
   const user = request.user
 
-  const blog = await Blog.findById(request.params.id)
-
-  if (blog.user.toString() === user.id) {
+  if (user && blog.user.toString() === user.id) {
     await Blog.findByIdAndRemove(request.params.id)
     response.status(204).end()
   } else {
     response.status(401).json({ error: 'Deleting post not possible - user unauthorized' })
   }
+
 
 })
 

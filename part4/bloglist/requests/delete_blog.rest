@@ -1,2 +1,2 @@
-DELETE http://localhost:3001/api/blogs/id
-Authorization: Bearer xx
+DELETE http://localhost:3001/api/blogs/invalid
+# Authorization: Bearer xx

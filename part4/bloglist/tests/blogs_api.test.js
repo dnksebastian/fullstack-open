@@ -23,28 +23,57 @@ const usersInDb = async () => {
 
 const initialBlogsDB = [{
   title: 'Example Blog',
-  author: 'John Doe',
   url: 'http://www.google.com',
   likes: 7
 }, {
   title: 'Some other blog',
-  author: 'Anna Doe',
   url: 'http://www.bing.com',
   likes: 15
 }, {
   title: 'Another Blog',
-  author: 'Anonymous Blogger',
   url: 'http://www.web.dev',
   likes: 20
 }]
 
-beforeEach(async () => {
-  await Blog.deleteMany({})
-  await Blog.insertMany(initialBlogsDB)
-})
+const testUser = supertest.agent(app)
+let userToken = null
 
+const createTestUser = async () => {
+
+  const testUser = {
+    username: 'testuser',
+    name: 'Test User',
+    password: 'example'
+  }
+
+  await api
+    .post('/api/users')
+    .send(testUser)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+}
+
+const loginTestUser = async () => {
+
+  const loggedUser = await testUser
+    .post('/api/login')
+    .send({ username: 'testuser', password: 'example' })
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  userToken = loggedUser.body.token
+}
 
 describe('reading post data', () => {
+
+  beforeAll(async () => {
+    await createTestUser()
+    console.log('test user created')
+    await loginTestUser()
+    console.log('test user logged in')
+    await Blog.insertMany(initialBlogsDB)
+  })
+
   test('api returns blog list as json', async () => {
     await api
       .get('/api/blogs')
@@ -69,14 +98,24 @@ describe('reading post data', () => {
     })
   })
 
+  afterAll( async () => {
+    await Blog.deleteMany({})
+    await User.deleteMany({})
+  })
+
 })
 
 describe('adding new posts', () => {
+
+  beforeAll(async () => {
+    await createTestUser()
+    await loginTestUser()
+  })
+
   test('new post can be added correctly', async () => {
 
     const newPost = {
       title: 'Test blog',
-      author: 'Anonymous Blogger',
       url: 'http://www.google.com',
       likes: 10
     }
@@ -85,6 +124,7 @@ describe('adding new posts', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${userToken}`)
       .send(newPost)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -99,12 +139,12 @@ describe('adding new posts', () => {
   test('if likes property is missing it defaults to 0', async () => {
     const newPostWithoutLikes = {
       title: 'Blog without likes',
-      author: 'Anonymous Blogger',
       url: 'http://www.google.com',
     }
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${userToken}`)
       .send(newPostWithoutLikes)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -115,13 +155,13 @@ describe('adding new posts', () => {
 
   test('if title property is missing from req data backend response is 400 bad request', async () => {
     const newPostWithoutTitle = {
-      author: 'Anonymous Blogger',
       url: 'http://www.google.com',
       likes: 8
     }
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${userToken}`)
       .send(newPostWithoutTitle)
       .expect(400)
       .expect('Content-Type', /application\/json/)
@@ -131,53 +171,88 @@ describe('adding new posts', () => {
   test('if url property is missing from req data backend response is 400 bad request', async () => {
     const newPostWithoutURL = {
       title: 'Blog without URL',
-      author: 'Anonymous Blogger',
       likes: 9
     }
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${userToken}`)
       .send(newPostWithoutURL)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
   })
 
+  test('adding a blog fails with 401 status response if token not provided', async () => {
+    const newPost = {
+      title: 'Example post',
+      url: 'https://www.google.com',
+      likes: 20
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newPost)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+  })
+
+  afterAll( async () => {
+    await Blog.deleteMany({})
+    await User.deleteMany({})
+  })
+
 })
 
 
 describe('deleting posts', () => {
+
+  beforeAll(async () => {
+    await createTestUser()
+    await loginTestUser()
+  })
+
   test('deleting valid post returns status code 204', async () => {
     const newPostToDelete = {
       title: 'Blog to delete',
-      author: 'Jack Sparrow',
       url: 'http://www.google.com',
       likes: 20
     }
 
-    await api.post('/api/blogs').send(newPostToDelete)
+    await api.post('/api/blogs').set('Authorization', `Bearer ${userToken}`).send(newPostToDelete)
     const blogsInDB = await availableBlogs()
-    // const addedPost = blogsInDB.at(-1)
     const addedPost = blogsInDB.find(blog => blog.title === 'Blog to delete')
 
     expect(addedPost).toBeDefined()
 
-    await api.delete(`/api/blogs/${addedPost.id}`).expect(204)
+    await api.delete(`/api/blogs/${addedPost.id}`).set('Authorization', `Bearer ${userToken}`).expect(204)
 
     const blogsAfterDel = await availableBlogs()
-    expect(blogsAfterDel.length).toBe(initialBlogsDB.length)
+    expect(blogsAfterDel.length).toBe(0)
     expect(blogsAfterDel).not.toContain(addedPost)
   })
 
-  test('deleting non-existing post returns status code 410', async () => {
-    await api.delete('/api/blogs/invalidID').expect(410)
+  test('deleting non-existing post returns status code 404', async () => {
+    await api.delete('/api/blogs/invalidID').expect(404)
     const blogsInDB = await availableBlogs()
-    expect(blogsInDB.length).toBe(initialBlogsDB.length)
+    expect(blogsInDB.length).toBe(0)
+  })
+
+  afterAll( async () => {
+    await Blog.deleteMany({})
+    await User.deleteMany({})
   })
 
 })
 
 describe('updating posts', () => {
+  beforeAll(async () => {
+    await createTestUser()
+    await loginTestUser()
+    await Blog.insertMany(initialBlogsDB)
+  })
+
   test('updating likes of a post works', async () => {
     const postsInDB = await availableBlogs()
     const postToUpdate = postsInDB[0]
@@ -246,7 +321,6 @@ describe('when there is initially one user in db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    // expect(result.body.error).toContain('expected `username` to be unique')
     expect(result.body.error).toBe('user already existing')
 
     const usersAtEnd = await usersInDb()
@@ -354,5 +428,7 @@ describe('adding new user validation', () => {
 })
 
 afterAll(async () => {
+  await Blog.deleteMany({})
+  await User.deleteMany({})
   await mongoose.connection.close()
 })
