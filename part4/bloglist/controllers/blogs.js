@@ -24,7 +24,8 @@ blogsRouter.post('/', async (request, response) => {
     return response.status(401).json({ error: 'User unauthorized' })
   }
 
-  const blog = new Blog({ ...request.body, author: user.name, user: user._id, likes: body.likes || 0 })
+  // const blog = new Blog({ ...request.body, author: user.name, user: user._id, likes: body.likes || 0 })
+  const blog = new Blog({ ...request.body, author: body.author || user.name, user: user._id, likes: body.likes || 0 })
 
   // if(request.body.title === undefined || request.body.url === undefined) {
   //   return response.status(400).json({ error: 'missing blog data' })
