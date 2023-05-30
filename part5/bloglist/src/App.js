@@ -7,13 +7,16 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
+  const [userBlogs, setUserBlogs] = useState([])
   const [notificationMsg, setNotificationMsg] = useState(null)
   const [notificationType, setNotificationType] = useState(null)
-  
-  const [newBlogTitle, setNewBlogTitle] = useState('')
-  const [newBlogURL, setNewBlogURL] = useState('')
-  const [newBlogAuthor, setNewBlogAuthor] = useState('')
-  const [newBlogLikes, setNewBlogLikes] = useState('')
+
+  const [newBlog, setNewBlog] = useState({
+    title: '',
+    author: '',
+    url: '',
+    likes: ''
+  })
  
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -37,6 +40,18 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
+
+  useEffect(() => {
+    async function fetchUserBlogs() {
+      const loggedUser = window.localStorage.getItem('loggedBloglistUser')
+      if(loggedUser) {
+        const user = JSON.parse(loggedUser)
+        const receivedUserBlogs = await blogService.getUserBlogs(user)
+        setUserBlogs(receivedUserBlogs)
+      }
+    }
+    fetchUserBlogs()
+  }, [user])
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -91,20 +106,17 @@ const loginForm = () => (
 
 const addBlog = async (e) => {
   e.preventDefault()
-  const blogObject = {
-    title: newBlogTitle,
-    author: newBlogAuthor,
-    url: newBlogURL,
-    likes: newBlogLikes
-  }
   
   try {
-    const addedBlog = await blogService.createBlog(blogObject)
+    const addedBlog = await blogService.createBlog(newBlog)
     setBlogs(blogs.concat(addedBlog))
-    setNewBlogTitle('')
-    setNewBlogAuthor('')
-    setNewBlogURL('')
-    setNewBlogLikes('')
+    setUserBlogs(userBlogs.concat(addedBlog))
+    setNewBlog({
+      title: '',
+      author: '',
+      url: '',
+      likes: ''
+    })
 
     setNotificationMsg(`a new blog ${addedBlog.title} by ${addedBlog.author} added`)
     setNotificationType('success')
@@ -127,19 +139,19 @@ const newBlogForm = () => (
   <form onSubmit={addBlog}>
     <div>
     <span>title</span>
-    <input value={newBlogTitle} onChange={(e) => {setNewBlogTitle(e.target.value)}}/>
+    <input value={newBlog.title} onChange={(e) => {setNewBlog({...newBlog, title: e.target.value})}}/>
     </div>
     <div>
     <span>author</span>
-    <input value={newBlogAuthor} onChange={(e) => {setNewBlogAuthor(e.target.value)}}/>
+    <input value={newBlog.author} onChange={(e) => {setNewBlog({...newBlog, author: e.target.value})}}/>
     </div>
     <div>
     <span>url</span>
-    <input value={newBlogURL} onChange={(e) => {setNewBlogURL(e.target.value)}}/>
+    <input value={newBlog.url} onChange={(e) => {setNewBlog({...newBlog, url: e.target.value})}}/>
     </div>
     <div>
     <span>likes</span>
-    <input value={newBlogLikes} onChange={(e) => {setNewBlogLikes(e.target.value)}}/>
+    <input value={newBlog.likes} onChange={(e) => {setNewBlog({...newBlog, likes: e.target.value})}}/>
     </div>
     <button type='submit'>create</button>
   </form>
@@ -169,8 +181,13 @@ const newBlogForm = () => (
         
         {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
-        )
-      }
+        )}
+
+        <h3>Blogs by {user.name}:</h3>
+
+        {userBlogs.map(blog =>
+        <Blog key={blog.id} blog={blog} />
+        )}
 
       </div>
       }
