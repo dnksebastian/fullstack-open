@@ -1,6 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+
 import Notification from './components/Notification'
 import Blog from './components/Blog'
+import Togglable from './components/Togglable'
+import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
+
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -11,16 +16,14 @@ const App = () => {
   const [notificationMsg, setNotificationMsg] = useState(null)
   const [notificationType, setNotificationType] = useState(null)
 
-  const [newBlog, setNewBlog] = useState({
-    title: '',
-    author: '',
-    url: '',
-    likes: ''
-  })
+  
  
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+
+
+  const blogFormRef = useRef()
 
   console.log('render');
 
@@ -80,44 +83,13 @@ const App = () => {
   }
 }
 
-const loginForm = () => (
-  <form onSubmit={handleLogin}>
-    <div>
-      username
-        <input
-        type="text"
-        value={username}
-        name="Username"
-        onChange={({ target }) => setUsername(target.value)}
-      />
-    </div>
-    <div>
-      password
-        <input
-        type="password"
-        value={password}
-        name="Password"
-        onChange={({ target }) => setPassword(target.value)}
-      />
-    </div>
-    <button type="submit">login</button>
-  </form>      
-)
-
-const addBlog = async (e) => {
-  e.preventDefault()
+const addBlog = async (blogObj) => {
   
   try {
-    const addedBlog = await blogService.createBlog(newBlog)
+    const addedBlog = await blogService.createBlog(blogObj)
     setBlogs(blogs.concat(addedBlog))
     setUserBlogs(userBlogs.concat(addedBlog))
-    setNewBlog({
-      title: '',
-      author: '',
-      url: '',
-      likes: ''
-    })
-
+   
     setNotificationMsg(`a new blog ${addedBlog.title} by ${addedBlog.author} added`)
     setNotificationType('success')
     setTimeout(() => {
@@ -133,39 +105,25 @@ const addBlog = async (e) => {
         setNotificationType(null)
       }, 4000)
   }
+  blogFormRef.current.toggleVisibility()
 }
 
-const newBlogForm = () => (
-  <form onSubmit={addBlog}>
-    <div>
-    <span>title</span>
-    <input value={newBlog.title} onChange={(e) => {setNewBlog({...newBlog, title: e.target.value})}}/>
-    </div>
-    <div>
-    <span>author</span>
-    <input value={newBlog.author} onChange={(e) => {setNewBlog({...newBlog, author: e.target.value})}}/>
-    </div>
-    <div>
-    <span>url</span>
-    <input value={newBlog.url} onChange={(e) => {setNewBlog({...newBlog, url: e.target.value})}}/>
-    </div>
-    <div>
-    <span>likes</span>
-    <input value={newBlog.likes} onChange={(e) => {setNewBlog({...newBlog, likes: e.target.value})}}/>
-    </div>
-    <button type='submit'>create</button>
-  </form>
-)
 
   return (
     <div>
       <h2>blogs</h2>
       <Notification type={notificationType} message={notificationMsg}/>
 
-      {user === null && <div>
-        <h2>Log in to application</h2>
-        {loginForm()}
-      </div>
+      {!user &&
+      <Togglable buttonLabel='Log in'>
+        <LoginForm
+        username={username}
+        password={password}
+        handleUsernameChange={({ target }) => setUsername(target.value)}
+        handlePasswordChange={({ target }) => setPassword(target.value)}
+        handleLogin={handleLogin}
+        />
+      </Togglable>
       }
     
       {user && <div>
@@ -175,7 +133,12 @@ const newBlogForm = () => (
           setUser(null)}}>logout</button>
 
           <h2>create new</h2>
-          {newBlogForm()}
+
+          <Togglable buttonLabel='new note' ref={blogFormRef}>
+            <BlogForm
+            createBlog={addBlog}
+            />
+          </Togglable>
 
         <h3>All blogs:</h3>
         
