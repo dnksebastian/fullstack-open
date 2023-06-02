@@ -16,8 +16,6 @@ const App = () => {
   const [notificationMsg, setNotificationMsg] = useState(null)
   const [notificationType, setNotificationType] = useState(null)
 
-  
- 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -79,7 +77,6 @@ const App = () => {
         setNotificationMsg(null)
         setNotificationType(null)
       }, 4000)
-      // console.log(err.response.data.error);
   }
 }
 
@@ -87,8 +84,9 @@ const addBlog = async (blogObj) => {
   
   try {
     const addedBlog = await blogService.createBlog(blogObj)
-    setBlogs(blogs.concat(addedBlog))
-    setUserBlogs(userBlogs.concat(addedBlog))
+    const extendedBlog = {...addedBlog, username: user.name}
+    setBlogs(blogs.concat(extendedBlog))
+    setUserBlogs(userBlogs.concat(extendedBlog))
    
     setNotificationMsg(`a new blog ${addedBlog.title} by ${addedBlog.author} added`)
     setNotificationType('success')
@@ -106,6 +104,34 @@ const addBlog = async (blogObj) => {
       }, 4000)
   }
   blogFormRef.current.toggleVisibility()
+}
+
+const likeBlog = async (id) => {
+  const blog = blogs.find(b => b.id === id)
+
+  const likedBlog = {...blog, likes: blog.likes + 1}
+
+  try {
+    const updatedBlog = await blogService.updateBlog(id, likedBlog)
+
+    setBlogs(blogs.map(b => b.id !== id ? b : updatedBlog ))
+    setUserBlogs(userBlogs.map(b => b.id !== id ? b : updatedBlog ))
+
+    setNotificationMsg(`liked blog ${updatedBlog.title} by ${updatedBlog.author}`)
+    setNotificationType('success')
+    setTimeout(() => {
+      setNotificationMsg(null)
+      setNotificationType(null)
+    }, 2000)
+  }
+  catch (err) {
+    setNotificationMsg('Failed to like blog')
+      setNotificationType('err')
+      setTimeout(() => {
+        setNotificationMsg(null)
+        setNotificationType(null)
+      }, 4000)
+  }
 }
 
 
@@ -143,13 +169,13 @@ const addBlog = async (blogObj) => {
         <h3>All blogs:</h3>
         
         {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} handleLikes={likeBlog}/>
         )}
 
         <h3>Blogs by {user.name}:</h3>
 
         {userBlogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} handleLikes={likeBlog}/>
         )}
 
       </div>

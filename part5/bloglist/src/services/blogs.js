@@ -11,12 +11,10 @@ const getAll = async () => {
   const response = await axios.get(baseUrl)
 
   if(Array.isArray(response.data)) {
-    console.log(response.data)
     return response.data
   } else {
     return []
   }
-  // return request.then(response => response.data)
 }
 
 const getUserBlogs = async (user) => {
@@ -42,6 +40,13 @@ const createBlog = async newBlog => {
   return response.data
 }
 
+const updateBlog = async (id, newObj) => {
+  const config = {
+    headers: { Authorization: token }
+  }
+  const response = await axios.put(`${baseUrl}/${id}`, newObj, config)
+  return response.data
+}
 
 // eslint-disable-next-line import/no-anonymous-default-export
-export default { getAll, getUserBlogs, createBlog, setToken }
+export default { getAll, getUserBlogs, createBlog, updateBlog, setToken }

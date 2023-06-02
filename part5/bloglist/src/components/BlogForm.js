@@ -5,7 +5,7 @@ const BlogForm = ({ createBlog }) => {
     title: "",
     author: "",
     url: "",
-    likes: "",
+    likes: 0,
   });
 
   const addBlog = (e) => {
@@ -15,7 +15,7 @@ const BlogForm = ({ createBlog }) => {
       title: "",
       author: "",
       url: "",
-      likes: "",
+      likes: 0,
     });
   };
 
@@ -40,13 +40,6 @@ const BlogForm = ({ createBlog }) => {
         <input
           value={newBlog.url}
           onChange={(e) => setNewBlog({ ...newBlog, url: e.target.value })}
-        />
-      </div>
-      <div>
-        <span>likes</span>
-        <input
-          value={newBlog.likes}
-          onChange={(e) => setNewBlog({ ...newBlog, likes: e.target.value })}
         />
       </div>
       <button type="submit">create</button>

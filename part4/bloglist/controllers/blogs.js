@@ -37,7 +37,9 @@ blogsRouter.post('/', async (request, response) => {
   user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
 
-  response.status(201).json(savedBlog)
+  const resObj = await savedBlog.populate('user', { username: 1, name: 1 })
+
+  response.status(201).json(resObj)
 
 })
 
@@ -70,18 +72,28 @@ blogsRouter.delete('/:id', async (request, response) => {
 blogsRouter.put('/:id', async (request, response) => {
 
   const body = request.body
+  const user = request.user
+
+  const bloguser = request.body.user
+
+  if (!user) {
+    return response.status(401).json({ error: 'User unauthorized' })
+  }
+
+  const userID = new mongoose.Types.ObjectId(bloguser.id)
 
   const post = {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes
+    likes: body.likes,
+    user: userID
   }
 
   const updatedPost = await Blog.findByIdAndUpdate(request.params.id, post, { new: true })
-  response.json(updatedPost)
+  const populatedPost = await updatedPost.populate('user', { username: 1, name: 1 })
+  response.json(populatedPost)
 
 })
-
 
 module.exports = blogsRouter
