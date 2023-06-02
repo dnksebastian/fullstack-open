@@ -25,11 +25,12 @@ const App = () => {
 
   console.log('render');
 
-  useEffect(() => {
-    async function fetchBlogs() {
-      const receivedBlogs = await blogService.getAll()
-      setBlogs(receivedBlogs)
-    }
+  async function fetchBlogs() {
+    const receivedBlogs = await blogService.getAll()
+    setBlogs(receivedBlogs)
+  }
+
+  useEffect(() => {  
     fetchBlogs()
   }, [])
 
@@ -42,15 +43,16 @@ const App = () => {
     }
   }, [])
 
-  useEffect(() => {
-    async function fetchUserBlogs() {
-      const loggedUser = window.localStorage.getItem('loggedBloglistUser')
-      if(loggedUser) {
-        const user = JSON.parse(loggedUser)
-        const receivedUserBlogs = await blogService.getUserBlogs(user)
-        setUserBlogs(receivedUserBlogs)
-      }
+  async function fetchUserBlogs() {
+    const loggedUser = window.localStorage.getItem('loggedBloglistUser')
+    if(loggedUser) {
+      const user = JSON.parse(loggedUser)
+      const receivedUserBlogs = await blogService.getUserBlogs(user)
+      setUserBlogs(receivedUserBlogs)
     }
+  }
+
+  useEffect(() => {
     fetchUserBlogs()
   }, [user])
 
@@ -134,6 +136,35 @@ const likeBlog = async (id) => {
   }
 }
 
+const removeBlog = async (id) => {
+  const blog = blogs.find(b => b.id === id)
+
+  let userConfirmed = window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
+  if(userConfirmed) {
+    try {
+      await blogService.deleteBlog(id)
+      fetchBlogs()
+      fetchUserBlogs()
+  
+      setNotificationMsg(`removed blog ${blog.title} by ${blog.author}`)
+      setNotificationType('success')
+      setTimeout(() => {
+        setNotificationMsg(null)
+        setNotificationType(null)
+      }, 2000)
+    }
+    catch(err){
+      setNotificationMsg('Failed to remove blog')
+        setNotificationType('err')
+        setTimeout(() => {
+          setNotificationMsg(null)
+          setNotificationType(null)
+        }, 4000)
+    }
+  }
+
+}
+
 
   return (
     <div>
@@ -169,13 +200,13 @@ const likeBlog = async (id) => {
         <h3>All blogs:</h3>
         
         {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} handleLikes={likeBlog}/>
+        <Blog key={blog.id} blog={blog} handleLikes={likeBlog} user={user}/>
         )}
 
         <h3>Blogs by {user.name}:</h3>
 
         {userBlogs.map(blog =>
-        <Blog key={blog.id} blog={blog} handleLikes={likeBlog}/>
+        <Blog key={blog.id} blog={blog} handleLikes={likeBlog} handleRemove={removeBlog} user={user}/>
         )}
 
       </div>

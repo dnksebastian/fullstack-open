@@ -11,7 +11,9 @@ const getAll = async () => {
   const response = await axios.get(baseUrl)
 
   if(Array.isArray(response.data)) {
-    return response.data
+    const sortedByLikes = [...response.data].sort((prev, next) => prev.likes < next.likes)
+    // return response.data
+    return sortedByLikes
   } else {
     return []
   }
@@ -23,7 +25,9 @@ const getUserBlogs = async (user) => {
   if(Array.isArray(response.data)) {
     const blogs = response.data
     const filteredBlogs = blogs.filter(b => b.user.username === user.username)
-    return filteredBlogs
+    const sortedFilteredBlogs = [...filteredBlogs].sort((prev,next) => prev.likes < next.likes)
+    // return filteredBlogs
+    return sortedFilteredBlogs
   } else {
     return []
   }
@@ -48,5 +52,14 @@ const updateBlog = async (id, newObj) => {
   return response.data
 }
 
+const deleteBlog = async (id) => {
+  const config = {
+    headers: { Authorization: token }
+  }
+
+  const response = await axios.delete(`${baseUrl}/${id}`, config)
+  return response.data
+}
+
 // eslint-disable-next-line import/no-anonymous-default-export
-export default { getAll, getUserBlogs, createBlog, updateBlog, setToken }
+export default { getAll, getUserBlogs, createBlog, updateBlog, deleteBlog, setToken }
