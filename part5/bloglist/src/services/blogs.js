@@ -34,13 +34,13 @@ const getUserBlogs = async (user) => {
 }
 
 const createBlog = async newBlog => {
-  
+
   const config = {
     headers: { Authorization: token }
   }
-  
+
   const response = await axios.post(baseUrl, newBlog, config)
-  
+
   return response.data
 }
 
@@ -61,5 +61,5 @@ const deleteBlog = async (id) => {
   return response.data
 }
 
-// eslint-disable-next-line import/no-anonymous-default-export
+// eslint-disable-next-line
 export default { getAll, getUserBlogs, createBlog, updateBlog, deleteBlog, setToken }

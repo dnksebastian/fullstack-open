@@ -1,23 +1,23 @@
-import { useState } from "react";
+import { useState } from 'react'
 
 const BlogForm = ({ createBlog }) => {
   const [newBlog, setNewBlog] = useState({
-    title: "",
-    author: "",
-    url: "",
+    title: '',
+    author: '',
+    url: '',
     likes: 0,
-  });
+  })
 
   const addBlog = (e) => {
-    e.preventDefault();
-    createBlog(newBlog);
+    e.preventDefault()
+    createBlog(newBlog)
     setNewBlog({
-      title: "",
-      author: "",
-      url: "",
+      title: '',
+      author: '',
+      url: '',
       likes: 0,
-    });
-  };
+    })
+  }
 
   return (
     <form onSubmit={addBlog}>
@@ -44,7 +44,7 @@ const BlogForm = ({ createBlog }) => {
       </div>
       <button type="submit">create</button>
     </form>
-  );
-};
+  )
+}
 
-export default BlogForm;
+export default BlogForm

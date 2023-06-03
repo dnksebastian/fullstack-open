@@ -23,14 +23,14 @@ const App = () => {
 
   const blogFormRef = useRef()
 
-  console.log('render');
+  console.log('render')
 
   async function fetchBlogs() {
     const receivedBlogs = await blogService.getAll()
     setBlogs(receivedBlogs)
   }
 
-  useEffect(() => {  
+  useEffect(() => {
     fetchBlogs()
   }, [])
 
@@ -79,91 +79,91 @@ const App = () => {
         setNotificationMsg(null)
         setNotificationType(null)
       }, 4000)
+    }
   }
-}
 
-const addBlog = async (blogObj) => {
-  
-  try {
-    const addedBlog = await blogService.createBlog(blogObj)
-    const extendedBlog = {...addedBlog, username: user.name}
-    setBlogs(blogs.concat(extendedBlog))
-    setUserBlogs(userBlogs.concat(extendedBlog))
-   
-    setNotificationMsg(`a new blog ${addedBlog.title} by ${addedBlog.author} added`)
-    setNotificationType('success')
-    setTimeout(() => {
-      setNotificationMsg(null)
-      setNotificationType(null)
-    }, 4000)
+  const addBlog = async (blogObj) => {
 
-  } catch (err) {
-    setNotificationMsg('Failed to add blog')
-      setNotificationType('err')
-      setTimeout(() => {
-        setNotificationMsg(null)
-        setNotificationType(null)
-      }, 4000)
-  }
-  blogFormRef.current.toggleVisibility()
-}
-
-const likeBlog = async (id) => {
-  const blog = blogs.find(b => b.id === id)
-
-  const likedBlog = {...blog, likes: blog.likes + 1}
-
-  try {
-    const updatedBlog = await blogService.updateBlog(id, likedBlog)
-
-    setBlogs(blogs.map(b => b.id !== id ? b : updatedBlog ))
-    setUserBlogs(userBlogs.map(b => b.id !== id ? b : updatedBlog ))
-
-    setNotificationMsg(`liked blog ${updatedBlog.title} by ${updatedBlog.author}`)
-    setNotificationType('success')
-    setTimeout(() => {
-      setNotificationMsg(null)
-      setNotificationType(null)
-    }, 2000)
-  }
-  catch (err) {
-    setNotificationMsg('Failed to like blog')
-      setNotificationType('err')
-      setTimeout(() => {
-        setNotificationMsg(null)
-        setNotificationType(null)
-      }, 4000)
-  }
-}
-
-const removeBlog = async (id) => {
-  const blog = blogs.find(b => b.id === id)
-
-  let userConfirmed = window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
-  if(userConfirmed) {
     try {
-      await blogService.deleteBlog(id)
-      fetchBlogs()
-      fetchUserBlogs()
-  
-      setNotificationMsg(`removed blog ${blog.title} by ${blog.author}`)
+      const addedBlog = await blogService.createBlog(blogObj)
+      const extendedBlog = { ...addedBlog, username: user.name }
+      setBlogs(blogs.concat(extendedBlog))
+      setUserBlogs(userBlogs.concat(extendedBlog))
+
+      setNotificationMsg(`a new blog ${addedBlog.title} by ${addedBlog.author} added`)
+      setNotificationType('success')
+      setTimeout(() => {
+        setNotificationMsg(null)
+        setNotificationType(null)
+      }, 4000)
+
+    } catch (err) {
+      setNotificationMsg('Failed to add blog')
+      setNotificationType('err')
+      setTimeout(() => {
+        setNotificationMsg(null)
+        setNotificationType(null)
+      }, 4000)
+    }
+    blogFormRef.current.toggleVisibility()
+  }
+
+  const likeBlog = async (id) => {
+    const blog = blogs.find(b => b.id === id)
+
+    const likedBlog = { ...blog, likes: blog.likes + 1 }
+
+    try {
+      const updatedBlog = await blogService.updateBlog(id, likedBlog)
+
+      setBlogs(blogs.map(b => b.id !== id ? b : updatedBlog ))
+      setUserBlogs(userBlogs.map(b => b.id !== id ? b : updatedBlog ))
+
+      setNotificationMsg(`liked blog ${updatedBlog.title} by ${updatedBlog.author}`)
       setNotificationType('success')
       setTimeout(() => {
         setNotificationMsg(null)
         setNotificationType(null)
       }, 2000)
     }
-    catch(err){
-      setNotificationMsg('Failed to remove blog')
+    catch (err) {
+      setNotificationMsg('Failed to like blog')
+      setNotificationType('err')
+      setTimeout(() => {
+        setNotificationMsg(null)
+        setNotificationType(null)
+      }, 4000)
+    }
+  }
+
+  const removeBlog = async (id) => {
+    const blog = blogs.find(b => b.id === id)
+
+    let userConfirmed = window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
+    if(userConfirmed) {
+      try {
+        await blogService.deleteBlog(id)
+        fetchBlogs()
+        fetchUserBlogs()
+
+        setNotificationMsg(`removed blog ${blog.title} by ${blog.author}`)
+        setNotificationType('success')
+        setTimeout(() => {
+          setNotificationMsg(null)
+          setNotificationType(null)
+        }, 2000)
+      }
+      catch(err){
+        setNotificationMsg('Failed to remove blog')
         setNotificationType('err')
         setTimeout(() => {
           setNotificationMsg(null)
           setNotificationType(null)
         }, 4000)
+      }
     }
-  }
 
-}
+  }
 
 
   return (
@@ -174,39 +174,39 @@ const removeBlog = async (id) => {
       {!user &&
       <Togglable buttonLabel='Log in'>
         <LoginForm
-        username={username}
-        password={password}
-        handleUsernameChange={({ target }) => setUsername(target.value)}
-        handlePasswordChange={({ target }) => setPassword(target.value)}
-        handleLogin={handleLogin}
+          username={username}
+          password={password}
+          handleUsernameChange={({ target }) => setUsername(target.value)}
+          handlePasswordChange={({ target }) => setPassword(target.value)}
+          handleLogin={handleLogin}
         />
       </Togglable>
       }
-    
+
       {user && <div>
         <p>{user.name} logged in</p>
-        <button onClick={() => { 
+        <button onClick={() => {
           window.localStorage.clear()
           setUser(null)}}>logout</button>
 
-          <h2>create new</h2>
+        <h2>create new</h2>
 
-          <Togglable buttonLabel='new note' ref={blogFormRef}>
-            <BlogForm
+        <Togglable buttonLabel='new note' ref={blogFormRef}>
+          <BlogForm
             createBlog={addBlog}
-            />
-          </Togglable>
+          />
+        </Togglable>
 
         <h3>All blogs:</h3>
-        
+
         {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} handleLikes={likeBlog} user={user}/>
+          <Blog key={blog.id} blog={blog} handleLikes={likeBlog} user={user}/>
         )}
 
         <h3>Blogs by {user.name}:</h3>
 
         {userBlogs.map(blog =>
-        <Blog key={blog.id} blog={blog} handleLikes={likeBlog} handleRemove={removeBlog} user={user}/>
+          <Blog key={blog.id} blog={blog} handleLikes={likeBlog} handleRemove={removeBlog} user={user}/>
         )}
 
       </div>
