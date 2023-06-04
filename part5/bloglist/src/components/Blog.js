@@ -20,7 +20,7 @@ const Blog = ({ blog, handleLikes, handleRemove, user }) => {
   }
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='blogpost'>
       <div>
         {blog.title} {blog.author}
         {!blogDetailsVisible && <button onClick={() => setBlogDetailsVisible(true)}>view</button>}
