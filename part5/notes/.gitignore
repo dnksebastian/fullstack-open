@@ -25,3 +25,5 @@ yarn-error.log*
 db.json
 .env
 .eslintingnore
+
+cypress/videos
