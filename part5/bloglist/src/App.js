@@ -172,7 +172,7 @@ const App = () => {
       <Notification type={notificationType} message={notificationMsg}/>
 
       {!user &&
-      <Togglable buttonLabel='Log in'>
+      <Togglable buttonLabel='Log in' btnId='btn-showlogin'>
         <LoginForm
           username={username}
           password={password}
