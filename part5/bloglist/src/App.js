@@ -27,7 +27,8 @@ const App = () => {
 
   async function fetchBlogs() {
     const receivedBlogs = await blogService.getAll()
-    setBlogs(receivedBlogs)
+    const sortBlogs = sortBlogsByLikes(receivedBlogs)
+    setBlogs(sortBlogs)
   }
 
   useEffect(() => {
@@ -48,13 +49,20 @@ const App = () => {
     if(loggedUser) {
       const user = JSON.parse(loggedUser)
       const receivedUserBlogs = await blogService.getUserBlogs(user)
-      setUserBlogs(receivedUserBlogs)
+      const sortedUserBlogs = sortBlogsByLikes(receivedUserBlogs)
+      setUserBlogs(sortedUserBlogs)
     }
   }
 
   useEffect(() => {
     fetchUserBlogs()
   }, [user])
+
+  const sortBlogsByLikes = (blogsArr) => {
+    // const sortedBlogs = blogsArr.sort((prev, next) => prev.likes < next.likes)
+    const sortedBlogs = blogsArr.sort((prev, next) => next.likes - prev.likes)
+    return sortedBlogs
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -165,7 +173,6 @@ const App = () => {
 
   }
 
-
   return (
     <div>
       <h2>blogs</h2>
@@ -200,7 +207,7 @@ const App = () => {
         <h3>All blogs:</h3>
 
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} handleLikes={likeBlog} user={user}/>
+          <Blog key={blog.id} blog={blog} handleLikes={likeBlog} handleRemove={removeBlog} user={user}/>
         )}
 
         <h3>Blogs by {user.name}:</h3>

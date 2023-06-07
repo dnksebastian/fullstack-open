@@ -23,14 +23,14 @@ const Blog = ({ blog, handleLikes, handleRemove, user }) => {
     <div style={blogStyle} className='blogpost'>
       <div>
         {blog.title} {blog.author}
-        {!blogDetailsVisible && <button onClick={() => setBlogDetailsVisible(true)}>view</button>}
-        {blogDetailsVisible && <button onClick={() => setBlogDetailsVisible(false)}>hide</button>}
+        {!blogDetailsVisible && <button className='btn-viewdetails' onClick={() => setBlogDetailsVisible(true)}>view</button>}
+        {blogDetailsVisible && <button className='btn-hidedetails' onClick={() => setBlogDetailsVisible(false)}>hide</button>}
       </div>
       {blogDetailsVisible &&
         <><div>{blog.url}</div>
-          <div>{blog.likes} <button onClick={likeBlog}>like</button> </div>
-          <div>{blog.username || blog.user.name}</div>
-          {user.username === blog.user.username && <button onClick={removeBlog}>remove</button>}
+          <div><span className='blog-likes'>{blog.likes}</span> <button className='btn-likeblog' onClick={likeBlog}>like</button> </div>
+          <div><span className='blog-addedby'>{blog.username || blog.user.name}</span></div>
+          {user.username === blog.user.username && <button className='btn-removeblog' onClick={removeBlog}>remove</button>}
         </>
       }
     </div>
