@@ -11,9 +11,9 @@
 | 1 | Introduction to React | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part1" target="_blank">Repo</a>  |
 | 2 | Communicating with server | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part2" target="_blank">Repo</a>  |
 | 3 | Programming a server with NodeJS and Express | <a href="https://github.com/dnksebastian/fullstackopen-part3" target="_blank">Repo</a>  |
-| 4 | Testing Express servers, user authentication and administration | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part4" target="_blank">Repo</a>  |
-| 5 | Testing React apps | <a href="#" target="_blank">Repo</a>  |
-| 6 | - | <a href="#" target="_blank">Repo</a>  |
+| 4 | Testing Express servers, user authentication and administration. MongoDB, Mongoose, Jest.  | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part4" target="_blank">Repo</a>  |
+| 5 | Testing React apps. Configuring ESLint, using Jest and Cypress. | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part5" target="_blank">Repo</a>  |
+| 6 | Advanced State Management. Redux, React context, React Query. | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part6" target="_blank">Repo</a>  |
 | 7 | - | <a href="#" target="_blank">Repo</a>  |
 | 8 | - | <a href="#" target="_blank">Repo</a>  |
 | 9 | - | <a href="#" target="_blank">Repo</a>  |
