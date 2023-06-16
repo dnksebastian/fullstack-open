@@ -8,13 +8,23 @@ const initialState = {
     console.log(action)
     switch (action.type) {
       case 'GOOD':
-        return state
+        const goodScoreObj = {...state}
+        goodScoreObj.good++
+        return goodScoreObj
       case 'OK':
-        return state
+        const okScoreObj = {...state}
+        okScoreObj.ok++
+        return okScoreObj
       case 'BAD':
-        return state
+        const badScoreObj = {...state}
+        badScoreObj.bad++
+        return badScoreObj
       case 'ZERO':
-        return state
+        const resetObj = {...state}
+        resetObj.good = 0
+        resetObj.ok = 0
+        resetObj.bad = 0
+        return resetObj
       default: return state
     }
     
