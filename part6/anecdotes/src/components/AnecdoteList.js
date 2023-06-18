@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux"
 import { voteAnecdote } from "../reducers/anecdoteReducer"
+import { showNotification } from "../reducers/notificationReducer"
 
 
 
@@ -16,7 +17,6 @@ const Anecdote = ({ anecdote, handleClick }) => {
 }
 
 const AnecdoteList = () => {
-  // const anecdotes = useSelector(state => state.anecdotes)
   const anecdotes = useSelector(({ filter, anecdotes }) => {
     if (!filter) {
       return anecdotes
@@ -36,6 +36,7 @@ const AnecdoteList = () => {
     anecdote={anecdote}
     handleClick={() => {
         dispatch(voteAnecdote(anecdote.id))
+        dispatch(showNotification({type: 'vote', text: anecdote.content}))
     }}
      />)}
     </>
