@@ -1,29 +1,46 @@
 import { createSlice } from '@reduxjs/toolkit'
+import anecoteService from '../services/anecdotes'
 
   const anecdotesSlice = createSlice({
     name: 'anecdotes',
     initialState: [],
     reducers: {
-      addAnecdote(state, action) {
-        state.push(action.payload)
-      },
-      voteAnecdote(state, action) {
-        const anecdoteID = action.payload
-        const anecdoteToVote = state.find(a => a.id === anecdoteID)
-        const changedAnegdote = {
-          ...anecdoteToVote,
-          votes: anecdoteToVote.votes + 1
-        }
-        return state.map(anecdote => anecdote.id !== anecdoteID ? anecdote : changedAnegdote).sort((prev, next) => next.votes - prev.votes)
-      },
       appendAnecdote(state, action) {
         state.push(action.payload)
       },
       setAnecdotes(state, action) {
-        return action.payload
+        const anecdotesArr = action.payload
+        const sortedByLikes = anecdotesArr.sort((prev, next) => next.votes - prev.votes)
+        return sortedByLikes
       }
     }
   })
 
-export const { voteAnecdote, addAnecdote, appendAnecdote, setAnecdotes } = anecdotesSlice.actions
+export const { appendAnecdote, setAnecdotes } = anecdotesSlice.actions
+
+export const initializeAnecdotes = () => {
+  return async dispatch => {
+    const anecdotes = await anecoteService.getAll()
+    dispatch(setAnecdotes(anecdotes))
+  }
+}
+
+export const createAnecdote = content => {
+  return async dispatch => {
+    const newAnecdote = await anecoteService.createNew(content)
+    dispatch(appendAnecdote(newAnecdote))
+  }
+}
+
+export const voteAnecdote = (id) => {
+  return async (dispatch, getState) => {
+    const currentAnecdotes = getState().anecdotes
+    const anecdoteToVote = currentAnecdotes.find(a => a.id === id)
+    const votedAnecdote = {...anecdoteToVote, votes: anecdoteToVote.votes + 1}
+    const updatedA = await anecoteService.updateOne(id, votedAnecdote)
+    const updatedAnecdotes = currentAnecdotes.map(anecdote => anecdote.id !== id ? anecdote : updatedA)
+    dispatch(setAnecdotes(updatedAnecdotes))
+  }
+}
+
 export default anecdotesSlice.reducer

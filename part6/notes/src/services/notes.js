@@ -13,8 +13,5 @@ const createNew = async (content) => {
   return response.data
 }
 
-// eslint-disable-next-line
-export default {
-  getAll,
-  createNew,
-}
+// eslint-disable-next-line import/no-anonymous-default-export
+export default { getAll, createNew }
