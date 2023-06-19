@@ -1,23 +1,36 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+
 const notificationSlice = createSlice({
     name: 'notification',
     initialState: '',
     reducers: {
         showNotification(state, action) {
-            if(action.payload.type === 'vote') {
-                return state = `you voted '${action.payload.text}'`
-            } else if (action.payload.type === 'add') {
-                return state = `you added '${action.payload.text}'`
-            } else {
-                return state = ''
-            }
+            return action.payload
         },
         removeNotification(state) {
-            return state = ''
+            return ''
         }
     }
 })
 
 export const { showNotification, removeNotification } = notificationSlice.actions
+
+let timerID
+export const setNotification = (message, time) => {
+    return async (dispatch) => {
+        const displayTime = time * 1000
+        dispatch(showNotification(message))
+        
+        if(timerID) {
+            clearTimeout(timerID)
+        }
+
+        timerID = setTimeout(() => {
+            dispatch(removeNotification())
+        }, displayTime)
+        
+    }
+}
+
 export default notificationSlice.reducer
