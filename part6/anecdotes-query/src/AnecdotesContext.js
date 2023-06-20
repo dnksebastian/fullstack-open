@@ -8,6 +8,9 @@ const notificationsReducer = (state, action) => {
         case 'VOTE':
             const votedMsg = action.payload
             return votedMsg
+        case 'ERR_SHORT':
+            const errMsg = action.payload
+            return errMsg
         case 'REMOVE':
             return ''
         default:
