@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 
-const url = 'https://restcountries.com/v3.1/all';
+// const url = 'https://restcountries.com/v3.1/all';
+const url = 'https://studies.cs.helsinki.fi/restcountries/api/all';
 
 
 const getWeather = (lat, lang) => {

@@ -18,6 +18,7 @@ const App = () => {
       setCountries([...receivedCountries])
     });
   }
+  
   useEffect(receiveCountries, [])
 
 
@@ -26,9 +27,13 @@ const App = () => {
   }
 
   const findCountries = useCallback(() => {
-    const foundCountries = countries.filter(country => country.name.common.toLowerCase().includes(countryQuery.toLowerCase()))
-    setMatchingCountries([...foundCountries])    
-  }, [countries, countryQuery])
+    if(countryQuery) {
+      const foundCountries = countries.filter(country => country.name.common.toLowerCase().includes(countryQuery.toLowerCase()))
+      setMatchingCountries([...foundCountries])    
+    } else if (!countryQuery) {
+      setMatchingCountries([])
+    }
+  }, [countryQuery, countries])
 
 
   useEffect(() => {
@@ -37,7 +42,6 @@ const App = () => {
 
   const showDetails = (id) => {
     const countryToShow = countries.find(country => country.area === id)
-
     setMatchingCountries([{...countryToShow}]);
   } 
 
