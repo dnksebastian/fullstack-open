@@ -4,6 +4,9 @@ import {
   Routes, Route, Link, useParams, useNavigate
 } from 'react-router-dom'
 
+import { useField } from './hooks'
+
+
 const Menu = () => {
   const padding = {
     paddingRight: 5
@@ -70,9 +73,13 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  // const [content, setContent] = useState('')
+  // const [author, setAuthor] = useState('')
+  // const [info, setInfo] = useState('')
+
+  const content = useField('text')
+  const author = useField('text')
+  const info = useField('text')
 
   const navigate = useNavigate()
   const showNotification = props.handleNotification
@@ -80,13 +87,13 @@ const CreateNew = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
     navigate('/')
-    showNotification(content)
+    showNotification(content.value)
     setTimeout(() => {
       showNotification('')
     }, 5000)
@@ -98,17 +105,23 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...content} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...author} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input {...info} />
         </div>
         <button>create</button>
+        <button onClick={(e) => {
+          e.preventDefault()
+          content.resetValue()
+          author.resetValue()
+          info.resetValue()
+        }}>reset</button>
       </form>
     </div>
   )
