@@ -1,0 +1,24 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #fafafa;
+}
+
+.error, .success {
+    padding: 1rem;
+    border: 2px solid transparent;
+    border-radius: 1rem;
+    max-width: fit-content;
+}
+
+.error {
+    border-color: tomato;
+    color: tomato;
+}
+
+.success{
+    border-color: green;
+    color: green;
+}
