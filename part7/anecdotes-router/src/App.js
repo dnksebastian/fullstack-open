@@ -87,13 +87,13 @@ const CreateNew = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content: content.value,
-      author: author.value,
-      info: info.value,
+      content: content.fieldProps.value,
+      author: author.fieldProps.value,
+      info: info.fieldProps.value,
       votes: 0
     })
     navigate('/')
-    showNotification(content.value)
+    showNotification(content.fieldProps.value)
     setTimeout(() => {
       showNotification('')
     }, 5000)
@@ -105,15 +105,15 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input {...content} />
+          <input {...content.fieldProps} />
         </div>
         <div>
           author
-          <input {...author} />
+          <input {...author.fieldProps} />
         </div>
         <div>
           url for more info
-          <input {...info} />
+          <input {...info.fieldProps} />
         </div>
         <button>create</button>
         <button onClick={(e) => {
