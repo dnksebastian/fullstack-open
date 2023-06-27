@@ -1,20 +1,32 @@
-const Notification = ({ message, type }) => {
-  if (message === null) {
-    return null
-  }
+import { useRef } from 'react'
+import { useNotificationValue, useNotificationDispatch } from '../NotificationsContext'
 
-  if (type === 'err') {
+
+const Notification = () => {
+  const notification = useNotificationValue()
+  const dispatch = useNotificationDispatch()
+
+  let notificationStyle = notification.type ? notification.type.toLowerCase() : ''
+
+  const timer = useRef(0)
+  if (timer.current !== 0) {
+    clearTimeout(timer.current)
+  }
+  timer.current = setTimeout(() => {
+    dispatch({ type: 'CLEAR' })
+  }, 5000)
+
+
+  // console.log('notification rendered')
+
+  if(notification.message) {
     return (
-      <div className="error">
-        {message}
+      <div className={notificationStyle}>
+        {notification.message}
       </div>
     )
-  } else if (type === 'success') {
-    return (
-      <div className="success">
-        {message}
-      </div>
-    )
+  } else {
+    return null
   }
 
 }

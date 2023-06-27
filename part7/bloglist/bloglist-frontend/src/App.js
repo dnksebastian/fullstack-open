@@ -9,19 +9,20 @@ import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
+import { useNotificationValue, useNotificationDispatch } from './NotificationsContext'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [userBlogs, setUserBlogs] = useState([])
-  const [notificationMsg, setNotificationMsg] = useState(null)
-  const [notificationType, setNotificationType] = useState(null)
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
-
   const blogFormRef = useRef()
+  const notifValue = useNotificationValue()
+  const notifDispatch = useNotificationDispatch()
+
 
   console.log('render')
 
@@ -59,7 +60,6 @@ const App = () => {
   }, [user])
 
   const sortBlogsByLikes = (blogsArr) => {
-    // const sortedBlogs = blogsArr.sort((prev, next) => prev.likes < next.likes)
     const sortedBlogs = blogsArr.sort((prev, next) => next.likes - prev.likes)
     return sortedBlogs
   }
@@ -75,18 +75,13 @@ const App = () => {
       window.localStorage.setItem(
         'loggedBloglistUser', JSON.stringify(user)
       )
-
       setUser(user)
       setUsername('')
       setPassword('')
       blogService.setToken(user.token)
+      notifDispatch({ type: 'SUCCESS', message: 'successfully logged in' })
     } catch (err) {
-      setNotificationMsg(err.response.data.error)
-      setNotificationType('err')
-      setTimeout(() => {
-        setNotificationMsg(null)
-        setNotificationType(null)
-      }, 4000)
+      notifDispatch({ type: 'ERROR', message: 'could not log in' })
     }
   }
 
@@ -97,21 +92,9 @@ const App = () => {
       const extendedBlog = { ...addedBlog, username: user.name }
       setBlogs(blogs.concat(extendedBlog))
       setUserBlogs(userBlogs.concat(extendedBlog))
-
-      setNotificationMsg(`a new blog ${addedBlog.title} by ${addedBlog.author} added`)
-      setNotificationType('success')
-      setTimeout(() => {
-        setNotificationMsg(null)
-        setNotificationType(null)
-      }, 4000)
-
+      notifDispatch({ type: 'SUCCESS', message: `a new blog ${addedBlog.title} by ${addedBlog.author} added` })
     } catch (err) {
-      setNotificationMsg('Failed to add blog')
-      setNotificationType('err')
-      setTimeout(() => {
-        setNotificationMsg(null)
-        setNotificationType(null)
-      }, 4000)
+      notifDispatch({ type: 'ERROR', message: 'Failed to add blog' })
     }
     blogFormRef.current.toggleVisibility()
   }
@@ -126,21 +109,10 @@ const App = () => {
 
       setBlogs(blogs.map(b => b.id !== id ? b : updatedBlog ))
       setUserBlogs(userBlogs.map(b => b.id !== id ? b : updatedBlog ))
-
-      setNotificationMsg(`liked blog ${updatedBlog.title} by ${updatedBlog.author}`)
-      setNotificationType('success')
-      setTimeout(() => {
-        setNotificationMsg(null)
-        setNotificationType(null)
-      }, 2000)
+      notifDispatch({ type: 'SUCCESS', message: `liked blog ${updatedBlog.title} by ${updatedBlog.author}` })
     }
     catch (err) {
-      setNotificationMsg('Failed to like blog')
-      setNotificationType('err')
-      setTimeout(() => {
-        setNotificationMsg(null)
-        setNotificationType(null)
-      }, 4000)
+      notifDispatch({ type: 'ERROR', message: 'Failed to like a blog' })
     }
   }
 
@@ -153,30 +125,18 @@ const App = () => {
         await blogService.deleteBlog(id)
         fetchBlogs()
         fetchUserBlogs()
-
-        setNotificationMsg(`removed blog ${blog.title} by ${blog.author}`)
-        setNotificationType('success')
-        setTimeout(() => {
-          setNotificationMsg(null)
-          setNotificationType(null)
-        }, 2000)
+        notifDispatch({ type: 'SUCCESS', message: `removed blog ${blog.title} by ${blog.author}` })
       }
       catch(err){
-        setNotificationMsg('Failed to remove blog')
-        setNotificationType('err')
-        setTimeout(() => {
-          setNotificationMsg(null)
-          setNotificationType(null)
-        }, 4000)
+        notifDispatch({ type: 'ERROR', message: 'Failed to remove a blog' })
       }
     }
-
   }
 
   return (
     <div>
       <h2>blogs</h2>
-      <Notification type={notificationType} message={notificationMsg}/>
+      {notifValue.message && <Notification />}
 
       {!user &&
       <Togglable buttonLabel='Log in' btnId='btn-showlogin'>

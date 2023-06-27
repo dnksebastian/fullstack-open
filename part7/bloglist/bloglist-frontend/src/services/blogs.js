@@ -11,8 +11,6 @@ const getAll = async () => {
   const response = await axios.get(baseUrl)
 
   if(Array.isArray(response.data)) {
-    // const sortedByLikes = [...response.data].sort((prev, next) => prev.likes < next.likes)
-    // return sortedByLikes
     return response.data
   } else {
     return []
@@ -26,8 +24,6 @@ const getUserBlogs = async (user) => {
     const blogs = response.data
     const filteredBlogs = blogs.filter(b => b.user.username === user.username)
     return filteredBlogs
-    // const sortedFilteredBlogs = [...filteredBlogs].sort((prev,next) => prev.likes < next.likes)
-    // return sortedFilteredBlogs
   } else {
     return []
   }
