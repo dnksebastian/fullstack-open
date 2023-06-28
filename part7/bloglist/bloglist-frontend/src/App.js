@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 import Notification from './components/Notification'
 import Blog from './components/Blog'
@@ -6,14 +7,17 @@ import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 
-import blogService from './services/blogs'
+// import blogService from './services/blogs'
 import loginService from './services/login'
+
+import { setToken, getAllBlogs, createNewBlog, updateBlog, deleteBlog } from './services/newblogs'
 
 import { useNotificationValue, useNotificationDispatch } from './NotificationsContext'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [userBlogs, setUserBlogs] = useState([])
+  const queryClient = useQueryClient()
+  // const [blogs, setBlogs] = useState([])
+  // const [userBlogs, setUserBlogs] = useState([])
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -24,45 +28,104 @@ const App = () => {
   const notifDispatch = useNotificationDispatch()
 
 
-  console.log('render')
+  const addNewBlogMutation = useMutation(createNewBlog, {
+    onSuccess: (newBlog) => {
+      // queryClient.invalidateQueries('blogs')
+      const blogs = queryClient.getQueryData('blogs')
+      queryClient.setQueryData('blogs', blogs.concat(newBlog))
+      notifDispatch({ type: 'SUCCESS', message: `a new blog ${newBlog.title} by ${newBlog.author} added` })
+    },
+    onError: () => {
+      notifDispatch({ type: 'ERROR', message: 'Failed to add blog' })
+    }
+  })
 
-  async function fetchBlogs() {
-    const receivedBlogs = await blogService.getAll()
-    const sortBlogs = sortBlogsByLikes(receivedBlogs)
-    setBlogs(sortBlogs)
-  }
+  const updateBlogMutation = useMutation(updateBlog, {
+    onSuccess: (updatedBlog) => {
+      queryClient.invalidateQueries('blogs')
+      notifDispatch({ type: 'SUCCESS', message: `liked blog ${updatedBlog.title} by ${updatedBlog.author}` })
+    },
+    onError: () => {
+      notifDispatch({ type: 'ERROR', message: 'Failed to like a blog' })
+    }
+  })
 
-  useEffect(() => {
-    fetchBlogs()
-  }, [])
+  const deleteBlogMutation = useMutation(deleteBlog, {
+    onSuccess: (deletedBlog) => {
+      queryClient.invalidateQueries('blogs')
+      notifDispatch({ type: 'SUCCESS', message: `removed blog ${deletedBlog.title} by ${deletedBlog.author}` })
+    },
+    onError: () => {
+      notifDispatch({ type: 'ERROR', message: 'Failed to remove a blog' })
+    }
+  })
+
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
     if(loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
-      blogService.setToken(user.token)
+      setToken(user.token)
     }
   }, [])
 
-  async function fetchUserBlogs() {
-    const loggedUser = window.localStorage.getItem('loggedBloglistUser')
-    if(loggedUser) {
-      const user = JSON.parse(loggedUser)
-      const receivedUserBlogs = await blogService.getUserBlogs(user)
-      const sortedUserBlogs = sortBlogsByLikes(receivedUserBlogs)
-      setUserBlogs(sortedUserBlogs)
+
+  const blogsResult = useQuery('blogs', getAllBlogs, {
+    refetchOnWindowFocus: false,
+  })
+
+  const sortBlogsByLikes = (blogsArr) => {
+    if(blogsArr) {
+      const sortedBlogs = blogsArr.sort((prev, next) => next.likes - prev.likes)
+      return sortedBlogs
     }
   }
 
-  useEffect(() => {
-    fetchUserBlogs()
-  }, [user])
+  const initialBlogs = blogsResult.data
+  const blogs = sortBlogsByLikes(initialBlogs)
 
-  const sortBlogsByLikes = (blogsArr) => {
-    const sortedBlogs = blogsArr.sort((prev, next) => next.likes - prev.likes)
-    return sortedBlogs
+  // const blogs = blogsResult.data
+  let userBlogs = []
+
+  if(blogs && user) {
+    userBlogs = blogs.filter(b => b.user.username === user.username)
+    console.log(userBlogs)
   }
+
+
+  console.log('render')
+
+  // async function fetchBlogs() {
+  //   const receivedBlogs = await blogService.getAll()
+  //   const sortBlogs = sortBlogsByLikes(receivedBlogs)
+  //   setBlogs(sortBlogs)
+  // }
+
+  // useEffect(() => {
+  //   fetchBlogs()
+  // }, [])
+
+
+  // if (user) {
+  //   userBlogs = blogs.filter(b => b.user.username === user.username)
+  //   console.log(blogs, userBlogs)
+  //   console.log(user)
+  // }
+
+  // async function fetchUserBlogs() {
+  //   const loggedUser = window.localStorage.getItem('loggedBloglistUser')
+  //   if(loggedUser) {
+  //     const user = JSON.parse(loggedUser)
+  //     const receivedUserBlogs = await blogService.getUserBlogs(user)
+  //     const sortedUserBlogs = sortBlogsByLikes(receivedUserBlogs)
+  //     setUserBlogs(sortedUserBlogs)
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   fetchUserBlogs()
+  // }, [user])
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -78,7 +141,9 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
-      blogService.setToken(user.token)
+
+      setToken(user.token)
+
       notifDispatch({ type: 'SUCCESS', message: 'successfully logged in' })
     } catch (err) {
       notifDispatch({ type: 'ERROR', message: 'could not log in' })
@@ -86,51 +151,63 @@ const App = () => {
   }
 
   const addBlog = async (blogObj) => {
-
-    try {
-      const addedBlog = await blogService.createBlog(blogObj)
-      const extendedBlog = { ...addedBlog, username: user.name }
-      setBlogs(blogs.concat(extendedBlog))
-      setUserBlogs(userBlogs.concat(extendedBlog))
-      notifDispatch({ type: 'SUCCESS', message: `a new blog ${addedBlog.title} by ${addedBlog.author} added` })
-    } catch (err) {
-      notifDispatch({ type: 'ERROR', message: 'Failed to add blog' })
-    }
+    console.log(blogObj)
+    addNewBlogMutation.mutate(blogObj)
+    // try {
+    //   const addedBlog = await blogService.createBlog(blogObj)
+    //   const extendedBlog = { ...addedBlog, username: user.name }
+    //   setBlogs(blogs.concat(extendedBlog))
+    //   setUserBlogs(userBlogs.concat(extendedBlog))
+    //   notifDispatch({ type: 'SUCCESS', message: `a new blog ${addedBlog.title} by ${addedBlog.author} added` })
+    // } catch (err) {
+    //   notifDispatch({ type: 'ERROR', message: 'Failed to add blog' })
+    // }
     blogFormRef.current.toggleVisibility()
   }
 
   const likeBlog = async (id) => {
     const blog = blogs.find(b => b.id === id)
-
     const likedBlog = { ...blog, likes: blog.likes + 1 }
 
-    try {
-      const updatedBlog = await blogService.updateBlog(id, likedBlog)
+    console.log(id, blog, likedBlog)
 
-      setBlogs(blogs.map(b => b.id !== id ? b : updatedBlog ))
-      setUserBlogs(userBlogs.map(b => b.id !== id ? b : updatedBlog ))
-      notifDispatch({ type: 'SUCCESS', message: `liked blog ${updatedBlog.title} by ${updatedBlog.author}` })
-    }
-    catch (err) {
-      notifDispatch({ type: 'ERROR', message: 'Failed to like a blog' })
-    }
+    updateBlogMutation.mutate(likedBlog)
+
+    // try {
+    //   const updatedBlog = await blogService.updateBlog(id, likedBlog)
+
+    //   setBlogs(blogs.map(b => b.id !== id ? b : updatedBlog ))
+    //   setUserBlogs(userBlogs.map(b => b.id !== id ? b : updatedBlog ))
+    //   notifDispatch({ type: 'SUCCESS', message: `liked blog ${updatedBlog.title} by ${updatedBlog.author}` })
+    // }
+    // catch (err) {
+    //   notifDispatch({ type: 'ERROR', message: 'Failed to like a blog' })
+    // }
   }
 
   const removeBlog = async (id) => {
+    console.log(id)
     const blog = blogs.find(b => b.id === id)
 
     let userConfirmed = window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
     if(userConfirmed) {
-      try {
-        await blogService.deleteBlog(id)
-        fetchBlogs()
-        fetchUserBlogs()
-        notifDispatch({ type: 'SUCCESS', message: `removed blog ${blog.title} by ${blog.author}` })
-      }
-      catch(err){
-        notifDispatch({ type: 'ERROR', message: 'Failed to remove a blog' })
-      }
+      deleteBlogMutation.mutate(id)
     }
+    // if(userConfirmed) {
+    //   try {
+    //     await blogService.deleteBlog(id)
+    //     fetchBlogs()
+    //     fetchUserBlogs()
+    //     notifDispatch({ type: 'SUCCESS', message: `removed blog ${blog.title} by ${blog.author}` })
+    //   }
+    //   catch(err){
+    //     notifDispatch({ type: 'ERROR', message: 'Failed to remove a blog' })
+    //   }
+    // }
+  }
+
+  if(blogsResult.isLoading) {
+    return <div>loading data...</div>
   }
 
   return (
