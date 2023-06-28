@@ -13,6 +13,7 @@ import loginService from './services/login'
 import { setToken, getAllBlogs, createNewBlog, updateBlog, deleteBlog } from './services/newblogs'
 
 import { useNotificationValue, useNotificationDispatch } from './NotificationsContext'
+import { useUserValue, useUserDispatch } from './UserContext'
 
 const App = () => {
   const queryClient = useQueryClient()
@@ -21,12 +22,24 @@ const App = () => {
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+  // const [user, setUser] = useState(null)
 
   const blogFormRef = useRef()
+
   const notifValue = useNotificationValue()
   const notifDispatch = useNotificationDispatch()
 
+  let user = useUserValue()
+  const userDispatch = useUserDispatch()
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
+    if(loggedUserJSON) {
+      const currentUser = JSON.parse(loggedUserJSON)
+      userDispatch( { type: 'LOGIN', payload: currentUser })
+      setToken(currentUser.token)
+    }
+  }, [])
 
   const addNewBlogMutation = useMutation(createNewBlog, {
     onSuccess: (newBlog) => {
@@ -60,17 +73,6 @@ const App = () => {
     }
   })
 
-
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
-    if(loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      setToken(user.token)
-    }
-  }, [])
-
-
   const blogsResult = useQuery('blogs', getAllBlogs, {
     refetchOnWindowFocus: false,
   })
@@ -84,17 +86,11 @@ const App = () => {
 
   const initialBlogs = blogsResult.data
   const blogs = sortBlogsByLikes(initialBlogs)
-
-  // const blogs = blogsResult.data
   let userBlogs = []
 
   if(blogs && user) {
     userBlogs = blogs.filter(b => b.user.username === user.username)
-    console.log(userBlogs)
   }
-
-
-  console.log('render')
 
   // async function fetchBlogs() {
   //   const receivedBlogs = await blogService.getAll()
@@ -131,23 +127,37 @@ const App = () => {
     event.preventDefault()
     console.log('logging in with', username, password)
     try {
-      const user = await loginService.login({
-        username, password,
-      })
-
-      window.localStorage.setItem(
-        'loggedBloglistUser', JSON.stringify(user)
-      )
-      setUser(user)
+      const newUser = await loginService.login({ username, password })
+      window.localStorage.setItem('loggedBloglistUser', JSON.stringify(newUser))
+      userDispatch( { type: 'LOGIN', payload: newUser })
       setUsername('')
       setPassword('')
-
-      setToken(user.token)
-
+      setToken(newUser.token)
       notifDispatch({ type: 'SUCCESS', message: 'successfully logged in' })
-    } catch (err) {
+    }
+    catch(err){
+      console.log(err)
       notifDispatch({ type: 'ERROR', message: 'could not log in' })
     }
+
+    // try {
+    //   const user = await loginService.login({
+    //     username, password,
+    //   })
+
+    //   window.localStorage.setItem(
+    //     'loggedBloglistUser', JSON.stringify(user)
+    //   )
+    //   setUser(user)
+    //   setUsername('')
+    //   setPassword('')
+
+    //   setToken(user.token)
+
+    //   notifDispatch({ type: 'SUCCESS', message: 'successfully logged in' })
+    // } catch (err) {
+    //   notifDispatch({ type: 'ERROR', message: 'could not log in' })
+    // }
   }
 
   const addBlog = async (blogObj) => {
@@ -168,9 +178,6 @@ const App = () => {
   const likeBlog = async (id) => {
     const blog = blogs.find(b => b.id === id)
     const likedBlog = { ...blog, likes: blog.likes + 1 }
-
-    console.log(id, blog, likedBlog)
-
     updateBlogMutation.mutate(likedBlog)
 
     // try {
@@ -231,7 +238,9 @@ const App = () => {
         <p>{user.name} logged in</p>
         <button onClick={() => {
           window.localStorage.clear()
-          setUser(null)}}>logout</button>
+          userDispatch({ type: 'LOGOUT' })
+          // setUser(null)
+        }}>logout</button>
 
         <h2>create new</h2>
 
