@@ -22,3 +22,31 @@ body {
     border-color: green;
     color: green;
 }
+
+.users-list {
+    list-style: none;
+    display: grid;
+    background-color: rgba(0, 128, 128, 0.344);
+    max-width: max-content;
+    padding: 1.5rem;
+    gap: .5rem;
+}
+
+.users-list > * {
+    border: 1px solid red
+}
+
+.users-list li {
+    padding: .5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.users-list li > * {
+    flex: 1;
+}
+
+.users-list span {
+    min-width: 5rem;
+    white-space: nowrap;
+}

@@ -1,36 +1,21 @@
 import axios from 'axios'
+
 const baseUrl = '/api/blogs'
 
 let token = null
 
-const setToken = newToken => {
+export const setToken = newToken => {
   token = `Bearer ${newToken}`
 }
 
-const getAll = async () => {
-  const response = await axios.get(baseUrl)
+export const getAllBlogs = async () => {
+  const response = await axios.get(`${baseUrl}`)
 
-  if(Array.isArray(response.data)) {
-    return response.data
-  } else {
-    return []
-  }
+  return response.data
 }
 
-const getUserBlogs = async (user) => {
-  const response = await axios.get(baseUrl)
 
-  if(Array.isArray(response.data)) {
-    const blogs = response.data
-    const filteredBlogs = blogs.filter(b => b.user.username === user.username)
-    return filteredBlogs
-  } else {
-    return []
-  }
-}
-
-const createBlog = async newBlog => {
-
+export const createNewBlog = async (newBlog) => {
   const config = {
     headers: { Authorization: token }
   }
@@ -40,15 +25,16 @@ const createBlog = async newBlog => {
   return response.data
 }
 
-const updateBlog = async (id, newObj) => {
+export const updateBlog = async (newObj) => {
+
   const config = {
     headers: { Authorization: token }
   }
-  const response = await axios.put(`${baseUrl}/${id}`, newObj, config)
+  const response = await axios.put(`${baseUrl}/${newObj.id}`, newObj, config)
   return response.data
 }
 
-const deleteBlog = async (id) => {
+export const deleteBlog = async (id) => {
   const config = {
     headers: { Authorization: token }
   }
@@ -56,6 +42,3 @@ const deleteBlog = async (id) => {
   const response = await axios.delete(`${baseUrl}/${id}`, config)
   return response.data
 }
-
-// eslint-disable-next-line
-export default { getAll, getUserBlogs, createBlog, updateBlog, deleteBlog, setToken }

@@ -1,39 +1,92 @@
-import { useState } from 'react'
+// import { useState } from 'react'
+import { useMutation, useQueryClient, useQuery } from 'react-query'
+import { useParams, useNavigate } from 'react-router-dom'
 
-const Blog = ({ blog, handleLikes, handleRemove, user }) => {
-  const [blogDetailsVisible, setBlogDetailsVisible] = useState(false)
+import { useNotificationDispatch } from '../NotificationsContext'
+import { useUserValue } from '../UserContext'
+import { getAllBlogs, updateBlog, deleteBlog } from '../services/blogs'
+
+const Blog = () => {
+
+  const id = useParams().id
+  const navigate = useNavigate()
+
+  const currentUser = useUserValue()
+  const notifDispatch = useNotificationDispatch()
+  const queryClient = useQueryClient()
+
+  const blogsResult = useQuery('blogs', getAllBlogs, {
+    refetchOnWindowFocus: false,
+  })
+
+  const updateBlogMutation = useMutation(updateBlog, {
+    onSuccess: (updatedBlog) => {
+      queryClient.invalidateQueries('blogs')
+      notifDispatch({ type: 'SUCCESS', message: `liked blog ${updatedBlog.title} by ${updatedBlog.author}` })
+    },
+    onError: () => {
+      notifDispatch({ type: 'ERROR', message: 'Failed to like a blog' })
+    }
+  })
+
+  const deleteBlogMutation = useMutation(deleteBlog, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('blogs')
+      navigate('/')
+      notifDispatch({ type: 'SUCCESS', message: 'removed blog' })
+    },
+    onError: () => {
+      notifDispatch({ type: 'ERROR', message: 'Failed to remove a blog' })
+    }
+  })
+
+  if(blogsResult.isLoading) {
+    return <div>loading data...</div>
+  }
+
+  const initialBlogs = blogsResult.data
+
+  const tblog = initialBlogs.find(b => b.id === id)
+
+  const likeBlog = async (blogid) => {
+    const blog = initialBlogs.find(b => b.id === blogid)
+    const likedBlog = { ...blog, likes: blog.likes + 1 }
+    updateBlogMutation.mutate(likedBlog)
+  }
+
+  const removeBlog = async (id) => {
+    const blog = initialBlogs.find(b => b.id === id)
+
+    let userConfirmed = window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
+    if(userConfirmed) {
+      deleteBlogMutation.mutate(id)
+    }
+  }
+
+  const isOwner = () => {
+    return currentUser.username === tblog.user.username ? true : false
+  }
 
   const blogStyle = {
     padding: '1rem 1rem 1rem 1rem',
     border: '1px solid',
     borderRadius: '1rem',
     marginBottom: 5,
+    marginTop: 20,
     maxWidth: 'fit-content'
-  }
-
-  const likeBlog = () => {
-    handleLikes(blog.id)
-  }
-
-  const removeBlog = () => {
-    handleRemove(blog.id)
   }
 
   return (
     <div style={blogStyle} className='blogpost'>
+      <h2>{tblog.title}</h2>
+      <p>{tblog.url}</p>
       <div>
-        {blog.title} {blog.author}
-        {!blogDetailsVisible && <button className='btn-viewdetails' onClick={() => setBlogDetailsVisible(true)}>view</button>}
-        {blogDetailsVisible && <button className='btn-hidedetails' onClick={() => setBlogDetailsVisible(false)}>hide</button>}
+        <span className='blog-likes'>{tblog.likes}</span> <button className='btn-likeblog' onClick={() => {likeBlog(tblog.id)}}>like</button>
       </div>
-      {blogDetailsVisible &&
-        <><div>{blog.url}</div>
-          <div><span className='blog-likes'>{blog.likes}</span> <button className='btn-likeblog' onClick={likeBlog}>like</button> </div>
-          <div><span className='blog-addedby'>{blog.username || blog.user.name}</span></div>
-          {user.username === blog.user.username && <button className='btn-removeblog' onClick={removeBlog}>remove</button>}
-        </>
-      }
+      <p className='blog-addedby'>{tblog.user.name}</p>
+      {isOwner() && <button className='btn-removeblog' onClick={() => {removeBlog(tblog.id)}}>remove</button>}
     </div>
-  )}
+  )
+}
 
 export default Blog
