@@ -1,12 +1,24 @@
 import { useRef } from 'react'
 import { useNotificationValue, useNotificationDispatch } from '../NotificationsContext'
 
+import { Alert } from 'react-bootstrap'
+
 
 const Notification = () => {
   const notification = useNotificationValue()
   const dispatch = useNotificationDispatch()
 
-  let notificationStyle = notification.type ? notification.type.toLowerCase() : ''
+  // let notificationStyle = notification.type ? notification.type.toLowerCase() : ''
+  const notificationStyle = () => {
+    switch(notification.type) {
+    case 'SUCCESS':
+      return 'success'
+    case 'ERROR':
+      return 'warning'
+    default:
+      return 'primary'
+    }
+  }
 
   const timer = useRef(0)
   if (timer.current !== 0) {
@@ -21,9 +33,12 @@ const Notification = () => {
 
   if(notification.message) {
     return (
-      <div className={notificationStyle}>
+      // <div className={notificationStyle}>
+      //   {notification.message}
+      // </div>
+      <Alert variant={notificationStyle()}>
         {notification.message}
-      </div>
+      </Alert>
     )
   } else {
     return null

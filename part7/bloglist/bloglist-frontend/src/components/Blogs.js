@@ -4,6 +4,7 @@ import { useRef } from 'react'
 
 import Togglable from './Togglable'
 import BlogForm from './BlogForm'
+import { Table } from 'react-bootstrap'
 
 import { useNotificationDispatch } from '../NotificationsContext'
 
@@ -68,14 +69,22 @@ const Blogs = () => {
       </Togglable>
 
       <h3>All blogs:</h3>
-
-      {
-        blogs.map(blog =>
-          <li key={blog.id}>
-            <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-          </li>
-        )
-      }
+      <Table striped>
+        <tbody>
+          {
+            blogs.map(blog =>
+              <tr key={blog.id}>
+                <td>
+                  <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                </td>
+                <td>
+                  {blog.user.name}
+                </td>
+              </tr>
+            )
+          }
+        </tbody>
+      </Table>
     </>
   )
 }

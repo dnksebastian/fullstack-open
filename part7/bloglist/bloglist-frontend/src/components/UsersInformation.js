@@ -7,6 +7,22 @@ import userServices from '../services/users'
 const UsersInformation = () => {
   const [users, setUsers] = useState([])
 
+  const userListStyles = {
+    listStyle: 'none'
+  }
+
+  const rightSpanStyle = {
+    marginLeft: 10
+  }
+
+  const liStyle = {
+    marginTop: 10,
+    maxWidth: 'max-content',
+    border: '1px solid grey',
+    borderRadius: 10,
+    padding: 10
+  }
+
   useEffect(() => {
     async function getUsers() {
       const fetchedUsers = await userServices.getAllUsers()
@@ -15,16 +31,14 @@ const UsersInformation = () => {
     getUsers()
   }, [])
 
-  console.log(users)
-
 
   return (
     <>
       <h3>Users</h3>
-      <ul className='users-list'>
-        <li><span></span><span>blogs created</span></li>
-        {users.map(user => <li key={user.id}>
-          <Link to={`/users/${user.id}`}>{user.name}</Link><span>{user.blogs.length}</span>
+      <ul style={userListStyles}>
+        <li><span></span><span><b>blogs created</b></span></li>
+        {users.map(user => <li key={user.id} style={liStyle}>
+          <Link to={`/users/${user.id}`}>{user.name}</Link><span style={rightSpanStyle}>{user.blogs.length}</span>
         </li>)}
       </ul>
     </>

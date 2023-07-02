@@ -1,10 +1,10 @@
-* {
+/* * {
     box-sizing: border-box;
 }
 
 body {
     background-color: #fafafa;
-}
+} */
 
 .error, .success {
     padding: 1rem;
@@ -23,7 +23,7 @@ body {
     color: green;
 }
 
-.users-list {
+/* .users-list {
     list-style: none;
     display: grid;
     background-color: rgba(0, 128, 128, 0.344);
@@ -49,4 +49,4 @@ body {
 .users-list span {
     min-width: 5rem;
     white-space: nowrap;
-}
+} */

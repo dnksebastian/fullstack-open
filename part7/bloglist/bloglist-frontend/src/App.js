@@ -77,7 +77,8 @@ const App = () => {
   }
 
   return (
-    <div className='app-container'>
+    <div className="container">
+      {notifValue.message && <Notification />}
 
       {!user &&
       <>
@@ -94,9 +95,9 @@ const App = () => {
       </>
       }
 
+
       {user && <div className='logged-in'>
 
-        {notifValue.message && <Notification />}
 
         <Router>
           <Navigation />
