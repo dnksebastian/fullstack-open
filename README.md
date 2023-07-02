@@ -7,7 +7,7 @@
 
 | Course part | Description | Repository |
 | :------------: | :-------: | :--------: |
-| 0 | Fundamentals of Web apps, understanding communication between client (browser) and server | <a href="#" target="_blank">Repo</a>  |
+| 0 | Fundamentals of Web apps, understanding communication between client (browser) and server | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part0" target="_blank">Repo</a>  |
 | 1 | Introduction to React | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part1" target="_blank">Repo</a>  |
 | 2 | Communicating with server | <a href="https://github.com/dnksebastian/fullstack-open/tree/main/part2" target="_blank">Repo</a>  |
 | 3 | Programming a server with NodeJS and Express | <a href="https://github.com/dnksebastian/fullstackopen-part3" target="_blank">Repo</a>  |
