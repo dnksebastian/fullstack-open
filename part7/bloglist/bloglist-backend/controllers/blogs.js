@@ -43,6 +43,32 @@ blogsRouter.post('/', async (request, response) => {
 
 })
 
+
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const id = request.params.id
+  const body = request.body
+  const user = request.user
+
+  if(!user) {
+    return response.status(401).json({ error: 'User unauthorized' })
+  }
+
+  if(!mongoose.Types.ObjectId.isValid(id)) {
+    return response.status(404).json({ error: 'Invalid blog ID' })
+  }
+
+  const blog = await Blog.findById(id)
+  if(!blog) {
+    return response.status(410).end()
+  }
+
+  const newBlog = await Blog.findByIdAndUpdate(request.params.id, { '$push': { 'comments': body } }, { new: true })
+  const populatedPost = await newBlog.populate('user', { username: 1, name: 1 })
+
+  response.json(populatedPost)
+})
+
+
 blogsRouter.delete('/:id', async (request, response) => {
 
   const id = request.params.id

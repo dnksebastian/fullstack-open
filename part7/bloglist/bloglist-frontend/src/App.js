@@ -8,6 +8,7 @@ import {
 
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
+import Navigation from './components/Navigation'
 import LoginForm from './components/LoginForm'
 import UsersInformation from './components/UsersInformation'
 import Home from './components/Home'
@@ -78,29 +79,28 @@ const App = () => {
   return (
     <div className='app-container'>
 
-      <h2>blogs</h2>
-      {notifValue.message && <Notification />}
-
       {!user &&
-      <Togglable buttonLabel='Log in' btnId='btn-showlogin'>
-        <LoginForm
-          username={username}
-          password={password}
-          handleUsernameChange={({ target }) => setUsername(target.value)}
-          handlePasswordChange={({ target }) => setPassword(target.value)}
-          handleLogin={handleLogin}
-        />
-      </Togglable>
+      <>
+        <h2>blog app</h2>
+        <Togglable buttonLabel='Log in' btnId='btn-showlogin'>
+          <LoginForm
+            username={username}
+            password={password}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
+            handleLogin={handleLogin}
+          />
+        </Togglable>
+      </>
       }
 
       {user && <div className='logged-in'>
-        <p>{user.name} logged in</p>
-        <button onClick={() => {
-          window.localStorage.clear()
-          userDispatch({ type: 'LOGOUT' })
-        }}>logout</button>
+
+        {notifValue.message && <Notification />}
 
         <Router>
+          <Navigation />
+          <h2>blog app</h2>
 
           <Routes>
             <Route path='/blogs/:id' element={<Blog blogs={blogs}/>} />

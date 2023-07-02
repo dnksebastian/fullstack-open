@@ -4,7 +4,10 @@ import { useParams, useNavigate } from 'react-router-dom'
 
 import { useNotificationDispatch } from '../NotificationsContext'
 import { useUserValue } from '../UserContext'
-import { getAllBlogs, updateBlog, deleteBlog } from '../services/blogs'
+import { getAllBlogs, updateBlog, deleteBlog, postComment } from '../services/blogs'
+
+
+import CommentForm from './CommentForm'
 
 const Blog = () => {
 
@@ -40,6 +43,16 @@ const Blog = () => {
     }
   })
 
+  const postCommentMutation = useMutation(postComment, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('blogs')
+      notifDispatch({ type: 'SUCCESS', message: 'Posted comment' })
+    },
+    onError: () => {
+      notifDispatch({ type: 'ERROR', message: 'Failed to post comment' })
+    }
+  })
+
   if(blogsResult.isLoading) {
     return <div>loading data...</div>
   }
@@ -47,6 +60,7 @@ const Blog = () => {
   const initialBlogs = blogsResult.data
 
   const tblog = initialBlogs.find(b => b.id === id)
+  const blogCommentsArr = tblog.comments
 
   const likeBlog = async (blogid) => {
     const blog = initialBlogs.find(b => b.id === blogid)
@@ -61,6 +75,14 @@ const Blog = () => {
     if(userConfirmed) {
       deleteBlogMutation.mutate(id)
     }
+  }
+
+  const addComment = (comment) => {
+    const mutationData = {
+      id: tblog.id,
+      comment
+    }
+    postCommentMutation.mutate(mutationData)
   }
 
   const isOwner = () => {
@@ -85,6 +107,14 @@ const Blog = () => {
       </div>
       <p className='blog-addedby'>{tblog.user.name}</p>
       {isOwner() && <button className='btn-removeblog' onClick={() => {removeBlog(tblog.id)}}>remove</button>}
+      <p><b>comments</b></p>
+      <CommentForm sendComment={addComment} />
+      {blogCommentsArr && <div>
+        <ul>
+          {blogCommentsArr.map(comment => <li key={comment._id}>{comment.message}</li>)}
+        </ul>
+      </div>
+      }
     </div>
   )
 }
